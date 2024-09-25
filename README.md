@@ -8,4 +8,4 @@ Full functionaltity of the [BlackBox Modbus protocol](https://github.com/plasmap
 ### BlackBox Configurator
 Example program that demonstrates all library features.
 
-### [BlackBox Firmware and Software Examples](https://github.com/plasmapper/blackbox/tree/main/examples)
+### [BlackBox Firmware and Software Examples](https://github.com/plasmapper/blackbox/tree/main/example)
