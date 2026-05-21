@@ -12,6 +12,10 @@ namespace PL.BlackBox
     /// </summary>
     public class ModbusClient : Modbus.Client, IClient
     {
+        private const string _blackBoxSignature = "PLBB";
+        private const ushort _blackBoxMemoryMapVersion = 1;
+        private bool _deviceCompatibilityChecked = false;
+
         /// <summary>
         /// Initializes a new instance of the BlackBox Modbus client class with serial interface.
         /// </summary>
@@ -33,11 +37,29 @@ namespace PL.BlackBox
             base(ipAddress, port, protocol, stationAddress)
         { }
 
+        public override byte[] Command(byte functionCode, byte[] data)
+        {
+            lock (this)
+            {
+                try
+                {
+                    if (!_deviceCompatibilityChecked)
+                        CheckDeviceCompatibility();
+
+                    return base.Command(functionCode, data);
+                }
+                catch
+                {
+                    _deviceCompatibilityChecked = false;
+                    throw;
+                }
+            }
+        }
+
         public DeviceConfiguration ReadDeviceConfiguration()
         {
             lock (this)
             {
-                CheckBlackBoxCompatibility();
                 return new DeviceConfiguration()
                 {
                     Name = RegistersToString(ReadHoldingRegisters(2, 16))
@@ -45,15 +67,97 @@ namespace PL.BlackBox
             }
         }
 
-        public DeviceState ReadDeviceState()
+        public DeviceState ReadDeviceState() => ReadDeviceState(true);
+       
+        public void Restart()
         {
             lock (this)
             {
-                CheckBlackBoxCompatibility();
-                var stateRegisters = ReadInputRegisters(0, 61);
+                try
+                {
+                    WriteSingleCoil(0, true);
+                }
+                catch { }
+            }
+        }
+
+        public void SaveAllConfigurations()
+        {
+            lock (this)
+            {
+                WriteSingleCoil(1, true);
+            }
+        }
+
+        public void ClearRestartedFlag()
+        {
+            lock (this)
+            {
+                WriteSingleCoil(16, true);
+            }
+        }
+
+        public string SetDeviceName(string deviceName)
+        {
+            lock (this)
+            {
+                WriteMultipleHoldingRegisters(2, StringToRegisters(deviceName, 16));
+                return ReadDeviceConfiguration().Name;
+            }
+        }
+
+        public IHardwareInterface GetHardwareInterface(ushort index)
+        {
+            lock (this)
+            {
+                return new HardwareInterface(this, index, SelectHardwareInterface(index));
+            }
+        }
+
+        public IServer GetServer(ushort index)
+        {
+            lock (this)
+            {
+                return new Server(this, index, SelectServer(index));
+            }
+        }
+
+        protected virtual void DeviceCompatibilityValidator(DeviceState deviceState)
+        {
+            if (deviceState.BlackBoxSignature != _blackBoxSignature || deviceState.BlackBoxMemoryMapVersion != _blackBoxMemoryMapVersion)
+                throw new Exception($"The device is not a valid BlackBox device.");
+            _deviceCompatibilityChecked = true;
+        }
+
+        private void CheckDeviceCompatibility() => DeviceCompatibilityValidator(ReadDeviceState(false));
+
+        private DeviceState ReadDeviceState(bool checkCompatibility)
+        {
+            const byte startAddress = 0, registerCount = 61;
+
+            lock (this)
+            {
+                List<ushort> stateRegisters = new List<ushort>();
+                if (!checkCompatibility)
+                {
+                    byte[] commandData = new byte[4] { 0, startAddress, 0, registerCount };
+                    byte[] responseData = base.Command((byte)Modbus.FunctionCode.ReadInputRegisters, commandData).Skip(1).ToArray();
+
+                    int maxIndex = Math.Min(registerCount * 2, responseData.Length / 2 * 2);
+                    for (int j = 0; j < maxIndex; j += 2)
+                    {
+                        Array.Reverse(responseData, j, 2);
+                        stateRegisters.Add(BitConverter.ToUInt16(responseData, j));
+                    }
+                }
+                else
+                    stateRegisters = ReadInputRegisters(0, 61);
+                
                 return new DeviceState()
                 {
                     Restarted = (stateRegisters[1] & 0x01) != 0,
+                    BlackBoxSignature = RegistersToString(stateRegisters.Skip(2).Take(2).ToList()),
+                    BlackBoxMemoryMapVersion = stateRegisters[4],
                     HardwareInfo = new HardwareInfo()
                     {
                         Name = RegistersToString(stateRegisters.Skip(5).Take(16).ToList()),
@@ -81,66 +185,8 @@ namespace PL.BlackBox
             }
         }
 
-        public void Restart()
-        {
-            lock (this)
-            {
-                CheckBlackBoxCompatibility();
-                try
-                {
-                    WriteSingleCoil(0, true);
-                }
-                catch { }
-            }
-        }
-
-        public void SaveAllConfigurations()
-        {
-            lock (this)
-            {
-                CheckBlackBoxCompatibility();
-                WriteSingleCoil(1, true);
-            }
-        }
-
-        public void ClearRestartedFlag()
-        {
-            lock (this)
-            {
-                CheckBlackBoxCompatibility();
-                WriteSingleCoil(16, true);
-            }
-        }
-
-        public string SetDeviceName(string deviceName)
-        {
-            lock (this)
-            {
-                CheckBlackBoxCompatibility();
-                WriteMultipleHoldingRegisters(2, StringToRegisters(deviceName, 16));
-                return ReadDeviceConfiguration().Name;
-            }
-        }
-
-        public IHardwareInterface GetHardwareInterface(ushort index)
-        {
-            lock (this)
-            {
-                return new HardwareInterface(this, index, SelectHardwareInterface(index));
-            }
-        }
-
-        public IServer GetServer(ushort index)
-        {
-            lock (this)
-            {
-                return new Server(this, index, SelectServer(index));
-            }
-        }
-
         private HardwareInterfaceType SelectHardwareInterface(ushort index)
         {
-            CheckBlackBoxCompatibility();
             WriteSingleHoldingRegister(18, index);
             if (ReadHoldingRegisters(18, 1)[0] != index)
                 throw new Exception("Selecting hardware interface failed.");
@@ -149,7 +195,6 @@ namespace PL.BlackBox
 
         private ServerType SelectServer(ushort index)
         {
-            CheckBlackBoxCompatibility();
             WriteSingleHoldingRegister(19, index);
             if (ReadHoldingRegisters(19, 1)[0] != index)
                 throw new Exception("Selecting server failed.");
@@ -589,13 +634,6 @@ namespace PL.BlackBox
                 if (type != Type)
                     throw new Exception("Server control instance is invalid.");
             }
-        }
-
-        private void CheckBlackBoxCompatibility()
-        {
-            var blackBoxInfo = ReadInputRegisters(2, 3);
-            if (RegistersToString(blackBoxInfo.Take(2).ToList()) != "PLBB" || blackBoxInfo[2] != 1)
-                throw new Exception($"The device is not a valid BlackBox device.");
         }
 
         private static string RegistersToString(List<ushort> registers)

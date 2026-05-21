@@ -11,6 +11,16 @@
         public bool Restarted { get; internal set; }
 
         /// <summary>
+        /// Gets the BlackBox signature.
+        /// </summary>
+        public string BlackBoxSignature { get; internal set; }
+
+        /// <summary>
+        /// Gets the BlackBox memory map version.
+        /// </summary>
+        public ushort BlackBoxMemoryMapVersion { get; internal set; }
+
+        /// <summary>
         /// Gets the hardware information.
         /// </summary>
         public HardwareInfo HardwareInfo { get; internal set; }

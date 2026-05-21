@@ -11,9 +11,10 @@
     <RepositoryUrl>https://github.com/plasmapper/blackbox-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags></PackageTags>
-    <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added
+- Device compatibility validation.</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <VersionPrefix>1.0.0</VersionPrefix>
+    <VersionPrefix>1.1.0</VersionPrefix>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -37,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="PL.Modbus" Version="2.4.0" />
+    <PackageReference Include="PL.Modbus" Version="2.5.0" />
   </ItemGroup>
 
 </Project>
