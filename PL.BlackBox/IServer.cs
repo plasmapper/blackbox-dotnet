@@ -44,7 +44,7 @@
         /// <summary>
         /// Sets the network server maximum number of clients.
         /// </summary>
-        /// <param name="port">Network server maximum number of clients.</param>
+        /// <param name="maxNumberOfClients">Network server maximum number of clients.</param>
         /// <returns>Set value.</returns>
         ushort SetMaxNumberOfClients(ushort maxNumberOfClients);
 

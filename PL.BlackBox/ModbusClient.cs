@@ -37,6 +37,7 @@ namespace PL.BlackBox
             base(ipAddress, port, protocol, stationAddress)
         { }
 
+        /// <inheritdoc />
         public override byte[] Command(byte functionCode, byte[] data)
         {
             lock (this)
@@ -56,6 +57,7 @@ namespace PL.BlackBox
             }
         }
 
+        /// <inheritdoc />
         public DeviceConfiguration ReadDeviceConfiguration()
         {
             lock (this)
@@ -67,8 +69,10 @@ namespace PL.BlackBox
             }
         }
 
+        /// <inheritdoc />
         public DeviceState ReadDeviceState() => ReadDeviceState(true);
-       
+
+        /// <inheritdoc />
         public void Restart()
         {
             lock (this)
@@ -81,6 +85,7 @@ namespace PL.BlackBox
             }
         }
 
+        /// <inheritdoc />
         public void SaveAllConfigurations()
         {
             lock (this)
@@ -89,6 +94,7 @@ namespace PL.BlackBox
             }
         }
 
+        /// <inheritdoc />
         public void ClearRestartedFlag()
         {
             lock (this)
@@ -97,6 +103,7 @@ namespace PL.BlackBox
             }
         }
 
+        /// <inheritdoc />
         public string SetDeviceName(string deviceName)
         {
             lock (this)
@@ -106,6 +113,7 @@ namespace PL.BlackBox
             }
         }
 
+        /// <inheritdoc />
         public IHardwareInterface GetHardwareInterface(ushort index)
         {
             lock (this)
@@ -114,6 +122,7 @@ namespace PL.BlackBox
             }
         }
 
+        /// <inheritdoc />
         public IServer GetServer(ushort index)
         {
             lock (this)
@@ -122,10 +131,14 @@ namespace PL.BlackBox
             }
         }
 
+        /// <summary>
+        /// Checks if the connected device is compatible with the software and throws an exception if it is not.
+        /// </summary>
+        /// <param name="deviceState">Device state.</param>
         protected virtual void DeviceCompatibilityValidator(DeviceState deviceState)
         {
             if (deviceState.BlackBoxSignature != _blackBoxSignature || deviceState.BlackBoxMemoryMapVersion != _blackBoxMemoryMapVersion)
-                throw new Exception($"The device is not a valid BlackBox device.");
+                throw new NotSupportedException($"The device is not a valid BlackBox device.");
             _deviceCompatibilityChecked = true;
         }
 

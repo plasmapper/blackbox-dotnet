@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>plasmapper</Authors>
     <Description>BlackBox library for .NET</Description>
     <Copyright>Copyright (c) plasmapper 2024</Copyright>
@@ -11,24 +10,18 @@
     <RepositoryUrl>https://github.com/plasmapper/blackbox-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags></PackageTags>
-    <PackageReleaseNotes>Added
-- Device compatibility validation.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed
+- Package documentation.</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <VersionPrefix>1.1.0</VersionPrefix>
+    <VersionPrefix>1.1.1</VersionPrefix>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <Optimize>False</Optimize>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <Optimize>True</Optimize>
-    <DebugType>none</DebugType>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageOutputPath>../../build</PackageOutputPath>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<DebugType>none</DebugType>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<PackageOutputPath>../../build</PackageOutputPath>
+	</PropertyGroup>
 
   <ItemGroup>
     <None Include="..\README.md">
@@ -38,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="PL.Modbus" Version="2.5.0" />
+    <PackageReference Include="PL.Modbus" Version="2.5.1" />
   </ItemGroup>
 
 </Project>
