@@ -316,6 +316,8 @@ namespace PL.BlackBox
                 Type = type;
             }
 
+            public ushort Index => _index;
+
             public HardwareInterfaceType Type { get; }
 
             public HardwareInterfaceConfiguration ReadConfiguration()
@@ -831,6 +833,8 @@ namespace PL.BlackBox
                 _index = index;
                 Type = type;
             }
+
+            public ushort Index => _index;
 
             public ServerType Type { get; }
 

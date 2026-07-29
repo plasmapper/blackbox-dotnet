@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Async support.
+- Index property to IHardwareInterface and IServer.
 
 ### Changed
 - Configuration and state properties to be null if not applicable.

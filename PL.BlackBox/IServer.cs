@@ -9,6 +9,11 @@ namespace PL.BlackBox
     public interface IServer
     {
         /// <summary>
+        /// Gets the server index.
+        /// </summary>
+        ushort Index { get; }
+
+        /// <summary>
         /// Gets the server type.
         /// </summary>
         ServerType Type { get; }

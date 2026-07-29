@@ -10,6 +10,11 @@ namespace PL.BlackBox
     public interface IHardwareInterface
     {
         /// <summary>
+        /// Gets the hardware interface index.
+        /// </summary>
+        ushort Index { get; }
+
+        /// <summary>
         /// Gets the hardware interface type.
         /// </summary>
         HardwareInterfaceType Type { get; }
