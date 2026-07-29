@@ -5,8 +5,6 @@
     /// </summary>
     public class ServerState
     {
-        private string _name;
-
         /// <summary>
         /// Gets the server type.
         /// </summary>
@@ -15,10 +13,6 @@
         /// <summary>
         /// Gets the server name.
         /// </summary>
-        public string Name
-        {
-            get => _name;
-            internal set => _name = value;
-        }
+        public string Name { get; internal set; }
     }
 }

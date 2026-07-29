@@ -87,23 +87,37 @@ namespace BlackBoxConfigurator
                         // Read hardware interface configuration
                         var configuration = hardwareInterface.ReadConfiguration();
                         _systemModel.HardwareInterfaceConfiguration.Enabled.Value = configuration.IsEnabled;
-                        try { _systemModel.HardwareInterfaceConfiguration.UartBaudRate.Value = configuration.UartBaudRate; } catch { }
-                        try { _systemModel.HardwareInterfaceConfiguration.UartDataBits.Value = configuration.UartDataBits; } catch { }
-                        try { _systemModel.HardwareInterfaceConfiguration.UartParity.Value = configuration.UartParity; } catch { }
-                        try { _systemModel.HardwareInterfaceConfiguration.UartStopBits.Value = configuration.UartStopBits; } catch { }
-                        try { _systemModel.HardwareInterfaceConfiguration.UartFlowControl.Value = configuration.UartFlowControl; } catch { }
-                        try { _systemModel.HardwareInterfaceConfiguration.IpV4DhcpClientEnabled.Value = configuration.IpV4DhcpClientIsEnabled; } catch { }
-                        try { _systemModel.HardwareInterfaceConfiguration.IpV6DhcpClientEnabled.Value = configuration.IpV6DhcpClientIsEnabled; } catch { }
-                        try { _systemModel.HardwareInterfaceConfiguration.IpV4Address.Value = configuration.IpV4Address; } catch { }
-                        try { _systemModel.HardwareInterfaceConfiguration.IpV4Netmask.Value = configuration.IpV4Netmask; } catch { }
-                        try { _systemModel.HardwareInterfaceConfiguration.IpV4Gateway.Value = configuration.IpV4Gateway; } catch { }
-                        try { _systemModel.HardwareInterfaceConfiguration.IpV6GlobalAddress.Value = configuration.IpV6GlobalAddress; } catch { }
-                        try { _systemModel.HardwareInterfaceConfiguration.WiFiSsid.Value = configuration.WiFiSsid; } catch { }
+                        if (configuration.UartBaudRate is not null)
+                            _systemModel.HardwareInterfaceConfiguration.UartBaudRate.Value = configuration.UartBaudRate.Value;
+                        if (configuration.UartDataBits is not null)
+                            _systemModel.HardwareInterfaceConfiguration.UartDataBits.Value = configuration.UartDataBits.Value;
+                        if (configuration.UartParity is not null)
+                            _systemModel.HardwareInterfaceConfiguration.UartParity.Value = configuration.UartParity.Value;
+                        if (configuration.UartStopBits is not null)
+                            _systemModel.HardwareInterfaceConfiguration.UartStopBits.Value = configuration.UartStopBits.Value;
+                        if (configuration.UartFlowControl is not null)
+                            _systemModel.HardwareInterfaceConfiguration.UartFlowControl.Value = configuration.UartFlowControl.Value;
+                        if (configuration.IpV4DhcpClientIsEnabled is not null)
+                            _systemModel.HardwareInterfaceConfiguration.IpV4DhcpClientEnabled.Value = configuration.IpV4DhcpClientIsEnabled.Value;
+                        if (configuration.IpV6DhcpClientIsEnabled is not null)
+                            _systemModel.HardwareInterfaceConfiguration.IpV6DhcpClientEnabled.Value = configuration.IpV6DhcpClientIsEnabled.Value;
+                        if (configuration.IpV4Address is not null)
+                            _systemModel.HardwareInterfaceConfiguration.IpV4Address.Value = configuration.IpV4Address;
+                        if (configuration.IpV4Netmask is not null)
+                            _systemModel.HardwareInterfaceConfiguration.IpV4Netmask.Value = configuration.IpV4Netmask;
+                        if (configuration.IpV4Gateway is not null)
+                            _systemModel.HardwareInterfaceConfiguration.IpV4Gateway.Value = configuration.IpV4Gateway;
+                        if (configuration.IpV6GlobalAddress is not null)
+                            _systemModel.HardwareInterfaceConfiguration.IpV6GlobalAddress.Value = configuration.IpV6GlobalAddress;
+                        if (configuration.WiFiSsid is not null)
+                            _systemModel.HardwareInterfaceConfiguration.WiFiSsid.Value = configuration.WiFiSsid;
 
                         // Read hardware interface state
                         var state = hardwareInterface.ReadState();
-                        try { _systemModel.HardwareInterfaceState.IsConnected.Value = state.IsConnected; } catch { }
-                        try { _systemModel.HardwareInterfaceState.IpV6LocalAddress.Value = state.IpV6LocalAddress; } catch { }
+                        if (state.IsConnected is not null)
+                            _systemModel.HardwareInterfaceState.IsConnected.Value = state.IsConnected.Value;
+                        if (state.IpV6LocalAddress is not null)
+                            _systemModel.HardwareInterfaceState.IpV6LocalAddress.Value = state.IpV6LocalAddress;
                     }
 
                     if (deviceState.NumberOfServers > 0 && _systemModel.ServerIndex.Value >= 0)
@@ -116,10 +130,14 @@ namespace BlackBoxConfigurator
                         // Read server configuration
                         var configuration = server.ReadConfiguration();
                         _systemModel.ServerConfiguration.Enabled.Value = configuration.IsEnabled;
-                        try { _systemModel.ServerConfiguration.NetworkPort.Value = configuration.NetworkPort; } catch { }
-                        try { _systemModel.ServerConfiguration.MaxNumberOfClients.Value = configuration.MaxNumberOfClients; } catch { }
-                        try { _systemModel.ServerConfiguration.ModbusProtocol.Value = configuration.ModbusProtocol; } catch { }
-                        try { _systemModel.ServerConfiguration.ModbusStationAddress.Value = configuration.ModbusStationAddress; } catch { }
+                        if (configuration.NetworkPort is not null)
+                            _systemModel.ServerConfiguration.NetworkPort.Value = configuration.NetworkPort.Value;
+                        if (configuration.MaxNumberOfClients is not null)
+                            _systemModel.ServerConfiguration.MaxNumberOfClients.Value = configuration.MaxNumberOfClients.Value;
+                        if (configuration.ModbusProtocol is not null)
+                            _systemModel.ServerConfiguration.ModbusProtocol.Value = configuration.ModbusProtocol.Value;
+                        if (configuration.ModbusStationAddress is not null)
+                            _systemModel.ServerConfiguration.ModbusStationAddress.Value = configuration.ModbusStationAddress.Value;
                     }
 
                     _systemModel.Exception.Value = null;

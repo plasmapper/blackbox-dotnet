@@ -1,5 +1,3 @@
-﻿using System;
-using System.Linq;
 using System.Net;
 
 namespace PL.BlackBox
@@ -9,20 +7,6 @@ namespace PL.BlackBox
     /// </summary>
     public class HardwareInterfaceConfiguration
     {
-        private bool _isEnabled;
-        private uint _uartBaudRate;
-        private ushort _uartDataBits;
-        private UartParity _uartParity;
-        private UartStopBits _uartStopBits;
-        private UartFlowControl _uartFlowControl;
-        private bool _ipV4DhcpClientIsEnabled;
-        private bool _ipV6DhcpClientIsEnabled;
-        private IPAddress _ipV4Address;
-        private IPAddress _ipV4Netmask;
-        private IPAddress _ipV4Gateway;
-        private IPAddress _ipV6GlobalAddress;
-        private string _wifiSsid;
-
         /// <summary>
         /// Gets the hardware interface type.
         /// </summary>
@@ -31,124 +15,66 @@ namespace PL.BlackBox
         /// <summary>
         /// Gets a value indicating whether the hardware interface is enabled.
         /// </summary>
-        public bool IsEnabled
-        {
-            get => _isEnabled;
-            internal set => _isEnabled = value;
-        }
+        public bool IsEnabled { get; internal set; }
 
         /// <summary>
-        /// Gets the UART baud rate.
+        /// Gets the UART baud rate, or null if not applicable to <see cref="HardwareInterfaceType"/>.
         /// </summary>
-        public uint UartBaudRate
-        {
-            get => HardwareInterfaceType == HardwareInterfaceType.Uart ? _uartBaudRate : throw new NotSupportedException();
-            internal set => _uartBaudRate = value;
-        }
+        public uint? UartBaudRate { get; internal set; }
 
         /// <summary>
-        /// Gets the UART data bits.
+        /// Gets the UART data bits, or null if not applicable to <see cref="HardwareInterfaceType"/>.
         /// </summary>
-        public ushort UartDataBits
-        {
-            get => HardwareInterfaceType == HardwareInterfaceType.Uart ? _uartDataBits : throw new NotSupportedException();
-            internal set => _uartDataBits = value;
-        }
+        public ushort? UartDataBits { get; internal set; }
 
         /// <summary>
-        /// Gets the UART parity.
+        /// Gets the UART parity, or null if not applicable to <see cref="HardwareInterfaceType"/>.
         /// </summary>
-        public UartParity UartParity
-        {
-            get => HardwareInterfaceType == HardwareInterfaceType.Uart ? _uartParity : throw new NotSupportedException();
-            internal set => _uartParity = value;
-        }
+        public UartParity? UartParity { get; internal set; }
 
         /// <summary>
-        /// Gets the UART stop bits.
+        /// Gets the UART stop bits, or null if not applicable to <see cref="HardwareInterfaceType"/>.
         /// </summary>
-        public UartStopBits UartStopBits
-        {
-            get => HardwareInterfaceType == HardwareInterfaceType.Uart ? _uartStopBits : throw new NotSupportedException();
-            internal set => _uartStopBits = value;
-        }
+        public UartStopBits? UartStopBits { get; internal set; }
 
         /// <summary>
-        /// Gets the UART flow control.
+        /// Gets the UART flow control, or null if not applicable to <see cref="HardwareInterfaceType"/>.
         /// </summary>
-        public UartFlowControl UartFlowControl
-        {
-            get => HardwareInterfaceType == HardwareInterfaceType.Uart ? _uartFlowControl : throw new NotSupportedException();
-            internal set => _uartFlowControl = value;
-        }
+        public UartFlowControl? UartFlowControl { get; internal set; }
 
         /// <summary>
-        /// Gets a value indicating whether the IPv4 DHCP client is enabled.
+        /// Gets a value indicating whether the IPv4 DHCP client is enabled, or null if not applicable to <see cref="HardwareInterfaceType"/>.
         /// </summary>
-        public bool IpV4DhcpClientIsEnabled
-        {
-            get => new[] { HardwareInterfaceType.NetworkInterface, HardwareInterfaceType.Ethernet, HardwareInterfaceType.WifiStation }.Contains(HardwareInterfaceType) ?
-                _ipV4DhcpClientIsEnabled : throw new NotSupportedException();
-            internal set => _ipV4DhcpClientIsEnabled = value;
-        }
+        public bool? IpV4DhcpClientIsEnabled { get; internal set; }
 
         /// <summary>
-        /// Gets a value indicating whether the IPv6 DHCP client is enabled.
+        /// Gets a value indicating whether the IPv6 DHCP client is enabled, or null if not applicable to <see cref="HardwareInterfaceType"/>.
         /// </summary>
-        public bool IpV6DhcpClientIsEnabled
-        {
-            get => new[] { HardwareInterfaceType.NetworkInterface, HardwareInterfaceType.Ethernet, HardwareInterfaceType.WifiStation }.Contains(HardwareInterfaceType) ?
-                _ipV6DhcpClientIsEnabled : throw new NotSupportedException();
-            internal set => _ipV6DhcpClientIsEnabled = value;
-        }
+        public bool? IpV6DhcpClientIsEnabled { get; internal set; }
 
         /// <summary>
-        /// Gets the IPv4 address.
+        /// Gets the IPv4 address, or null if not applicable to <see cref="HardwareInterfaceType"/>.
         /// </summary>
-        public IPAddress IpV4Address
-        {
-            get => new[] { HardwareInterfaceType.NetworkInterface, HardwareInterfaceType.Ethernet, HardwareInterfaceType.WifiStation }.Contains(HardwareInterfaceType) ?
-                _ipV4Address : throw new NotSupportedException();
-            internal set => _ipV4Address = value;
-        }
+        public IPAddress IpV4Address { get; internal set; }
 
         /// <summary>
-        /// Gets the IPv4 netmask.
+        /// Gets the IPv4 netmask, or null if not applicable to <see cref="HardwareInterfaceType"/>.
         /// </summary>
-        public IPAddress IpV4Netmask
-        {
-            get => new[] { HardwareInterfaceType.NetworkInterface, HardwareInterfaceType.Ethernet, HardwareInterfaceType.WifiStation }.Contains(HardwareInterfaceType) ?
-                _ipV4Netmask : throw new NotSupportedException();
-            internal set => _ipV4Netmask = value;
-        }
+        public IPAddress IpV4Netmask { get; internal set; }
 
         /// <summary>
-        /// Gets the IPv4 gateway.
+        /// Gets the IPv4 gateway, or null if not applicable to <see cref="HardwareInterfaceType"/>.
         /// </summary>
-        public IPAddress IpV4Gateway
-        {
-            get => new[] { HardwareInterfaceType.NetworkInterface, HardwareInterfaceType.Ethernet, HardwareInterfaceType.WifiStation }.Contains(HardwareInterfaceType) ?
-                _ipV4Gateway : throw new NotSupportedException();
-            internal set => _ipV4Gateway = value;
-        }
+        public IPAddress IpV4Gateway { get; internal set; }
 
         /// <summary>
-        /// Gets the IPv6 global address.
+        /// Gets the IPv6 global address, or null if not applicable to <see cref="HardwareInterfaceType"/>.
         /// </summary>
-        public IPAddress IpV6GlobalAddress
-        {
-            get => new[] { HardwareInterfaceType.NetworkInterface, HardwareInterfaceType.Ethernet, HardwareInterfaceType.WifiStation }.Contains(HardwareInterfaceType) ?
-                _ipV6GlobalAddress : throw new NotSupportedException();
-            internal set => _ipV6GlobalAddress = value;
-        }
+        public IPAddress IpV6GlobalAddress { get; internal set; }
 
         /// <summary>
-        /// Gets the Wi-Fi SSID.
+        /// Gets the Wi-Fi SSID, or null if not applicable to <see cref="HardwareInterfaceType"/>.
         /// </summary>
-        public string WiFiSsid
-        {
-            get => HardwareInterfaceType == HardwareInterfaceType.WifiStation ? _wifiSsid : throw new NotSupportedException();
-            internal set => _wifiSsid = value;
-        }
+        public string WiFiSsid { get; internal set; }
     }
 }

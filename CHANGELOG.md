@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Async support.
 
+### Changed
+- Configuration and state properties to be null if not applicable.
+
 ### Fixed
 - Wrong IPv6 address returned by SetIpV6GlobalAddress.
 

@@ -1,5 +1,3 @@
-﻿using System;
-using System.Linq;
 using System.Net;
 
 namespace PL.BlackBox
@@ -9,10 +7,6 @@ namespace PL.BlackBox
     /// </summary>
     public class HardwareInterfaceState
     {
-        private string _name;
-        private bool _isConnected;
-        private IPAddress _ipV6LocalAddress;
-
         /// <summary>
         /// Gets the hardware interface type.
         /// </summary>
@@ -21,30 +15,16 @@ namespace PL.BlackBox
         /// <summary>
         /// Gets the hardware interface name.
         /// </summary>
-        public string Name
-        {
-            get => _name;
-            internal set => _name = value;
-        }
+        public string Name { get; internal set; }
 
         /// <summary>
-        /// Gets a value indicating whether the hardware interface is connected.
+        /// Gets a value indicating whether the hardware interface is connected, or null if not applicable to <see cref="HardwareInterfaceType"/>.
         /// </summary>
-        public bool IsConnected
-        {
-            get => new[] { HardwareInterfaceType.NetworkInterface, HardwareInterfaceType.Ethernet, HardwareInterfaceType.WifiStation }.Contains(HardwareInterfaceType) ?
-                _isConnected : throw new NotSupportedException();
-            internal set => _isConnected = value;
-        }
+        public bool? IsConnected { get; internal set; }
 
         /// <summary>
-        /// Gets the IPv6 local address.
+        /// Gets the IPv6 local address, or null if not applicable to <see cref="HardwareInterfaceType"/>.
         /// </summary>
-        public IPAddress IpV6LocalAddress
-        {
-            get => new[] { HardwareInterfaceType.NetworkInterface, HardwareInterfaceType.Ethernet, HardwareInterfaceType.WifiStation }.Contains(HardwareInterfaceType) ?
-                _ipV6LocalAddress : throw new NotSupportedException();
-            internal set => _ipV6LocalAddress = value;
-        }
+        public IPAddress IpV6LocalAddress { get; internal set; }
     }
 }

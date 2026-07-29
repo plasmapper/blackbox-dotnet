@@ -1,6 +1,3 @@
-﻿using System;
-using System.Linq;
-
 namespace PL.BlackBox
 {
     /// <summary>
@@ -8,12 +5,6 @@ namespace PL.BlackBox
     /// </summary>
     public class ServerConfiguration
     {
-        private bool _isEnabled;
-        private ushort _port;
-        private ushort _maxNumberOfClients;
-        private ModbusProtocol _modbusProtocol;
-        private byte _modbusStationAddress;
-
         /// <summary>
         /// Gets the server type.
         /// </summary>
@@ -22,50 +13,26 @@ namespace PL.BlackBox
         /// <summary>
         /// Gets a value indicating whether the server is enabled.
         /// </summary>
-        public bool IsEnabled
-        {
-            get => _isEnabled;
-            internal set => _isEnabled = value;
-        }
+        public bool IsEnabled { get; internal set; }
 
         /// <summary>
-        /// Gets the network server port.
+        /// Gets the network server port, or null if not applicable to <see cref="ServerType"/>.
         /// </summary>
-        public ushort NetworkPort
-        {
-            get => new[] { ServerType.NetworkServer, ServerType.NetworkModbusServer, ServerType.HttpServer, ServerType.MdnsServer }.Contains(ServerType) ?
-                _port : throw new NotSupportedException();
-            internal set => _port = value;
-        }
+        public ushort? NetworkPort { get; internal set; }
 
         /// <summary>
-        /// Gets the network server maximum number of clients.
+        /// Gets the network server maximum number of clients, or null if not applicable to <see cref="ServerType"/>.
         /// </summary>
-        public ushort MaxNumberOfClients
-        {
-            get => new[] { ServerType.NetworkServer, ServerType.NetworkModbusServer, ServerType.HttpServer, ServerType.MdnsServer }.Contains(ServerType) ?
-                _maxNumberOfClients : throw new NotSupportedException();
-            internal set => _maxNumberOfClients = value;
-        }
+        public ushort? MaxNumberOfClients { get; internal set; }
 
         /// <summary>
-        /// Gets the Modbus protocol.
+        /// Gets the Modbus protocol, or null if not applicable to <see cref="ServerType"/>.
         /// </summary>
-        public ModbusProtocol ModbusProtocol
-        {
-            get => new[] { ServerType.StreamModbusServer, ServerType.NetworkModbusServer }.Contains(ServerType) ?
-                _modbusProtocol : throw new NotSupportedException();
-            internal set => _modbusProtocol = value;
-        }
+        public ModbusProtocol? ModbusProtocol { get; internal set; }
 
         /// <summary>
-        /// Gets the Modbus station address.
+        /// Gets the Modbus station address, or null if not applicable to <see cref="ServerType"/>.
         /// </summary>
-        public byte ModbusStationAddress
-        {
-            get => new[] { ServerType.StreamModbusServer, ServerType.NetworkModbusServer }.Contains(ServerType) ?
-                _modbusStationAddress : throw new NotSupportedException();
-            internal set => _modbusStationAddress = value;
-        }
+        public byte? ModbusStationAddress { get; internal set; }
     }
 }
