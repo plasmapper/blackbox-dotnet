@@ -452,7 +452,7 @@ namespace PL.BlackBox
                 {
                     Select(session);
                     if (Type != HardwareInterfaceType.Uart)
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not Uart.");
                     session.WriteMultipleHoldingRegisters(102, Uint32ToRegisters(baudRate));
                     return RegistersToUint32(session.ReadHoldingRegisters(102, 2));
                 }
@@ -464,7 +464,7 @@ namespace PL.BlackBox
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (Type != HardwareInterfaceType.Uart)
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not Uart.");
                     await session.WriteMultipleHoldingRegistersAsync(102, Uint32ToRegisters(baudRate), cancellationToken).ConfigureAwait(false);
                     return RegistersToUint32(await session.ReadHoldingRegistersAsync(102, 2, cancellationToken).ConfigureAwait(false));
                 }
@@ -476,7 +476,7 @@ namespace PL.BlackBox
                 {
                     Select(session);
                     if (Type != HardwareInterfaceType.Uart)
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not Uart.");
                     session.WriteSingleHoldingRegister(104, dataBits);
                     return session.ReadHoldingRegisters(104, 1)[0];
                 }
@@ -488,7 +488,7 @@ namespace PL.BlackBox
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (Type != HardwareInterfaceType.Uart)
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not Uart.");
                     await session.WriteSingleHoldingRegisterAsync(104, dataBits, cancellationToken).ConfigureAwait(false);
                     return (await session.ReadHoldingRegistersAsync(104, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
@@ -500,7 +500,7 @@ namespace PL.BlackBox
                 {
                     Select(session);
                     if (Type != HardwareInterfaceType.Uart)
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not Uart.");
                     session.WriteSingleHoldingRegister(105, (ushort)parity);
                     return (UartParity)session.ReadHoldingRegisters(105, 1)[0];
                 }
@@ -512,7 +512,7 @@ namespace PL.BlackBox
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (Type != HardwareInterfaceType.Uart)
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not Uart.");
                     await session.WriteSingleHoldingRegisterAsync(105, (ushort)parity, cancellationToken).ConfigureAwait(false);
                     return (UartParity)(await session.ReadHoldingRegistersAsync(105, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
@@ -524,7 +524,7 @@ namespace PL.BlackBox
                 {
                     Select(session);
                     if (Type != HardwareInterfaceType.Uart)
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not Uart.");
                     session.WriteSingleHoldingRegister(106, (ushort)stopBits);
                     return (UartStopBits)session.ReadHoldingRegisters(106, 1)[0];
                 }
@@ -536,7 +536,7 @@ namespace PL.BlackBox
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (Type != HardwareInterfaceType.Uart)
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not Uart.");
                     await session.WriteSingleHoldingRegisterAsync(106, (ushort)stopBits, cancellationToken).ConfigureAwait(false);
                     return (UartStopBits)(await session.ReadHoldingRegistersAsync(106, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
@@ -548,7 +548,7 @@ namespace PL.BlackBox
                 {
                     Select(session);
                     if (Type != HardwareInterfaceType.Uart)
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not Uart.");
                     session.WriteSingleHoldingRegister(107, (ushort)flowControl);
                     return (UartFlowControl)session.ReadHoldingRegisters(107, 1)[0];
                 }
@@ -560,7 +560,7 @@ namespace PL.BlackBox
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (Type != HardwareInterfaceType.Uart)
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not Uart.");
                     await session.WriteSingleHoldingRegisterAsync(107, (ushort)flowControl, cancellationToken).ConfigureAwait(false);
                     return (UartFlowControl)(await session.ReadHoldingRegistersAsync(107, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
@@ -572,7 +572,7 @@ namespace PL.BlackBox
                 {
                     Select(session);
                     if (!_networkInterfaceTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
                     session.WriteSingleCoil(101, true);
                     return session.ReadCoils(101, 1)[0];
                 }
@@ -584,7 +584,7 @@ namespace PL.BlackBox
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_networkInterfaceTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
                     await session.WriteSingleCoilAsync(101, true, cancellationToken).ConfigureAwait(false);
                     return (await session.ReadCoilsAsync(101, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
@@ -596,7 +596,7 @@ namespace PL.BlackBox
                 {
                     Select(session);
                     if (!_networkInterfaceTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
                     session.WriteSingleCoil(101, false);
                     return session.ReadCoils(101, 1)[0];
                 }
@@ -608,7 +608,7 @@ namespace PL.BlackBox
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_networkInterfaceTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
                     await session.WriteSingleCoilAsync(101, false, cancellationToken).ConfigureAwait(false);
                     return (await session.ReadCoilsAsync(101, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
@@ -620,7 +620,7 @@ namespace PL.BlackBox
                 {
                     Select(session);
                     if (!_networkInterfaceTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
                     session.WriteSingleCoil(102, true);
                     return session.ReadCoils(102, 1)[0];
                 }
@@ -632,7 +632,7 @@ namespace PL.BlackBox
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_networkInterfaceTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
                     await session.WriteSingleCoilAsync(102, true, cancellationToken).ConfigureAwait(false);
                     return (await session.ReadCoilsAsync(102, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
@@ -644,7 +644,7 @@ namespace PL.BlackBox
                 {
                     Select(session);
                     if (!_networkInterfaceTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
                     session.WriteSingleCoil(102, false);
                     return session.ReadCoils(102, 1)[0];
                 }
@@ -656,7 +656,7 @@ namespace PL.BlackBox
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_networkInterfaceTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
                     await session.WriteSingleCoilAsync(102, false, cancellationToken).ConfigureAwait(false);
                     return (await session.ReadCoilsAsync(102, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
@@ -668,7 +668,7 @@ namespace PL.BlackBox
                 {
                     Select(session);
                     if (!_networkInterfaceTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
                     session.WriteMultipleHoldingRegisters(102, IpV4AddressToRegisters(ipV4Address));
                     return RegistersToIpV4Address(session.ReadHoldingRegisters(102, 2));
                 }
@@ -680,7 +680,7 @@ namespace PL.BlackBox
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_networkInterfaceTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
                     await session.WriteMultipleHoldingRegistersAsync(102, IpV4AddressToRegisters(ipV4Address), cancellationToken).ConfigureAwait(false);
                     return RegistersToIpV4Address(await session.ReadHoldingRegistersAsync(102, 2, cancellationToken).ConfigureAwait(false));
                 }
@@ -692,7 +692,7 @@ namespace PL.BlackBox
                 {
                     Select(session);
                     if (!_networkInterfaceTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
                     session.WriteMultipleHoldingRegisters(104, IpV4AddressToRegisters(ipV4Netmask));
                     return RegistersToIpV4Address(session.ReadHoldingRegisters(104, 2));
                 }
@@ -704,7 +704,7 @@ namespace PL.BlackBox
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_networkInterfaceTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
                     await session.WriteMultipleHoldingRegistersAsync(104, IpV4AddressToRegisters(ipV4Netmask), cancellationToken).ConfigureAwait(false);
                     return RegistersToIpV4Address(await session.ReadHoldingRegistersAsync(104, 2, cancellationToken).ConfigureAwait(false));
                 }
@@ -716,7 +716,7 @@ namespace PL.BlackBox
                 {
                     Select(session);
                     if (!_networkInterfaceTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
                     session.WriteMultipleHoldingRegisters(106, IpV4AddressToRegisters(ipV4Gateway));
                     return RegistersToIpV4Address(session.ReadHoldingRegisters(106, 2));
                 }
@@ -728,7 +728,7 @@ namespace PL.BlackBox
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_networkInterfaceTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
                     await session.WriteMultipleHoldingRegistersAsync(106, IpV4AddressToRegisters(ipV4Gateway), cancellationToken).ConfigureAwait(false);
                     return RegistersToIpV4Address(await session.ReadHoldingRegistersAsync(106, 2, cancellationToken).ConfigureAwait(false));
                 }
@@ -740,7 +740,7 @@ namespace PL.BlackBox
                 {
                     Select(session);
                     if (!_networkInterfaceTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
                     session.WriteMultipleHoldingRegisters(108, IpV6AddressToRegisters(ipV6GlobalAddress));
                     return RegistersToIpV6Address(session.ReadHoldingRegisters(108, 8));
                 }
@@ -752,7 +752,7 @@ namespace PL.BlackBox
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_networkInterfaceTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
                     await session.WriteMultipleHoldingRegistersAsync(108, IpV6AddressToRegisters(ipV6GlobalAddress), cancellationToken).ConfigureAwait(false);
                     return RegistersToIpV6Address(await session.ReadHoldingRegistersAsync(108, 8, cancellationToken).ConfigureAwait(false));
                 }
@@ -764,7 +764,7 @@ namespace PL.BlackBox
                 {
                     Select(session);
                     if (Type != HardwareInterfaceType.WifiStation)
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not WifiStation.");
                     session.WriteMultipleHoldingRegisters(116, StringToRegisters(ssid, 16));
                     return RegistersToString(session.ReadHoldingRegisters(116, 16));
                 }
@@ -776,7 +776,7 @@ namespace PL.BlackBox
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (Type != HardwareInterfaceType.WifiStation)
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not WifiStation.");
                     await session.WriteMultipleHoldingRegistersAsync(116, StringToRegisters(ssid, 16), cancellationToken).ConfigureAwait(false);
                     return RegistersToString(await session.ReadHoldingRegistersAsync(116, 16, cancellationToken).ConfigureAwait(false));
                 }
@@ -788,7 +788,7 @@ namespace PL.BlackBox
                 {
                     Select(session);
                     if (Type != HardwareInterfaceType.WifiStation)
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not WifiStation.");
                     session.WriteMultipleHoldingRegisters(132, StringToRegisters(password, 32));
                 }
             }
@@ -799,7 +799,7 @@ namespace PL.BlackBox
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (Type != HardwareInterfaceType.WifiStation)
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not WifiStation.");
                     await session.WriteMultipleHoldingRegistersAsync(132, StringToRegisters(password, 32), cancellationToken).ConfigureAwait(false);
                 }
             }
@@ -964,7 +964,7 @@ namespace PL.BlackBox
                         session.WriteSingleHoldingRegister(204, port);
                         return session.ReadHoldingRegisters(204, 1)[0];
                     }
-                    throw new NotSupportedException();
+                    throw new NotSupportedException("Type is not NetworkServer, NetworkModbusServer, HttpServer or MdnsServer.");
                 }
             }
 
@@ -983,7 +983,7 @@ namespace PL.BlackBox
                         await session.WriteSingleHoldingRegisterAsync(204, port, cancellationToken).ConfigureAwait(false);
                         return (await session.ReadHoldingRegistersAsync(204, 1, cancellationToken).ConfigureAwait(false))[0];
                     }
-                    throw new NotSupportedException();
+                    throw new NotSupportedException("Type is not NetworkServer, NetworkModbusServer, HttpServer or MdnsServer.");
                 }
             }
 
@@ -1002,7 +1002,7 @@ namespace PL.BlackBox
                         session.WriteSingleHoldingRegister(205, maxNumberOfClients);
                         return session.ReadHoldingRegisters(205, 1)[0];
                     }
-                    throw new NotSupportedException();
+                    throw new NotSupportedException("Type is not NetworkServer, NetworkModbusServer, HttpServer or MdnsServer.");
                 }
             }
 
@@ -1021,7 +1021,7 @@ namespace PL.BlackBox
                         await session.WriteSingleHoldingRegisterAsync(205, maxNumberOfClients, cancellationToken).ConfigureAwait(false);
                         return (await session.ReadHoldingRegistersAsync(205, 1, cancellationToken).ConfigureAwait(false))[0];
                     }
-                    throw new NotSupportedException();
+                    throw new NotSupportedException("Type is not NetworkServer, NetworkModbusServer, HttpServer or MdnsServer.");
                 }
             }
 
@@ -1031,7 +1031,7 @@ namespace PL.BlackBox
                 {
                     Select(session);
                     if (!_modbusServerTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not StreamModbusServer or NetworkModbusServer.");
                     session.WriteSingleHoldingRegister(202, (ushort)protocol);
                     return (ModbusProtocol)session.ReadHoldingRegisters(202, 1)[0];
                 }
@@ -1043,7 +1043,7 @@ namespace PL.BlackBox
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_modbusServerTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not StreamModbusServer or NetworkModbusServer.");
                     await session.WriteSingleHoldingRegisterAsync(202, (ushort)protocol, cancellationToken).ConfigureAwait(false);
                     return (ModbusProtocol)(await session.ReadHoldingRegistersAsync(202, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
@@ -1055,7 +1055,7 @@ namespace PL.BlackBox
                 {
                     Select(session);
                     if (!_modbusServerTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not StreamModbusServer or NetworkModbusServer.");
                     session.WriteSingleHoldingRegister(203, stationAddress);
                     return (byte)session.ReadHoldingRegisters(203, 1)[0];
                 }
@@ -1067,7 +1067,7 @@ namespace PL.BlackBox
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_modbusServerTypes.Contains(Type))
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("Type is not StreamModbusServer or NetworkModbusServer.");
                     await session.WriteSingleHoldingRegisterAsync(203, stationAddress, cancellationToken).ConfigureAwait(false);
                     return (byte)(await session.ReadHoldingRegistersAsync(203, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
