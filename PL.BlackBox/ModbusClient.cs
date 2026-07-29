@@ -1097,6 +1097,9 @@ namespace PL.BlackBox
 
         private static List<ushort> StringToRegisters(string stringValue, int numberOfRegisters, string paramName)
         {
+            if (stringValue.Any(c => c > 127))
+                throw new ArgumentException("Value must contain only ASCII characters.", paramName);
+
             byte[] stringValueAsByteArray = Encoding.ASCII.GetBytes(stringValue);
             if (stringValueAsByteArray.Length > numberOfRegisters * 2)
                 throw new ArgumentException($"Value must be at most {numberOfRegisters * 2} characters long.", paramName);
