@@ -740,7 +740,7 @@ namespace PL.BlackBox
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException();
                     session.WriteMultipleHoldingRegisters(108, IpV6AddressToRegisters(ipV6GlobalAddress));
-                    return RegistersToIpV4Address(session.ReadHoldingRegisters(108, 8));
+                    return RegistersToIpV6Address(session.ReadHoldingRegisters(108, 8));
                 }
             }
 
@@ -752,7 +752,7 @@ namespace PL.BlackBox
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException();
                     await session.WriteMultipleHoldingRegistersAsync(108, IpV6AddressToRegisters(ipV6GlobalAddress), cancellationToken).ConfigureAwait(false);
-                    return RegistersToIpV4Address(await session.ReadHoldingRegistersAsync(108, 8, cancellationToken).ConfigureAwait(false));
+                    return RegistersToIpV6Address(await session.ReadHoldingRegistersAsync(108, 8, cancellationToken).ConfigureAwait(false));
                 }
             }
 
