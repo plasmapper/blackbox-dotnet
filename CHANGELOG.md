@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Wrong IPv6 address returned by SetIpV6GlobalAddress.
+- Hardware interface/server index out of range exception type.
 
 ## [1.1.1] - 2026-05-27
 ### Fixed

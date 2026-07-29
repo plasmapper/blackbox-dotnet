@@ -274,7 +274,7 @@ namespace PL.BlackBox
         {
             session.WriteSingleHoldingRegister(18, index);
             if (session.ReadHoldingRegisters(18, 1)[0] != index)
-                throw new Exception("Selecting hardware interface failed.");
+                throw new ArgumentOutOfRangeException(nameof(index), index, "Hardware interface index is out of range.");
             return (HardwareInterfaceType)session.ReadInputRegisters(102, 1)[0];
         }
 
@@ -282,7 +282,7 @@ namespace PL.BlackBox
         {
             await session.WriteSingleHoldingRegisterAsync(18, index, cancellationToken).ConfigureAwait(false);
             if ((await session.ReadHoldingRegistersAsync(18, 1, cancellationToken).ConfigureAwait(false))[0] != index)
-                throw new Exception("Selecting hardware interface failed.");
+                throw new ArgumentOutOfRangeException(nameof(index), index, "Hardware interface index is out of range.");
             return (HardwareInterfaceType)(await session.ReadInputRegistersAsync(102, 1, cancellationToken).ConfigureAwait(false))[0];
         }
 
@@ -290,7 +290,7 @@ namespace PL.BlackBox
         {
             session.WriteSingleHoldingRegister(19, index);
             if (session.ReadHoldingRegisters(19, 1)[0] != index)
-                throw new Exception("Selecting server failed.");
+                throw new ArgumentOutOfRangeException(nameof(index), index, "Server index is out of range.");
             return (ServerType)session.ReadInputRegisters(202, 1)[0];
         }
 
@@ -298,7 +298,7 @@ namespace PL.BlackBox
         {
             await session.WriteSingleHoldingRegisterAsync(19, index, cancellationToken).ConfigureAwait(false);
             if ((await session.ReadHoldingRegistersAsync(19, 1, cancellationToken).ConfigureAwait(false))[0] != index)
-                throw new Exception("Selecting server failed.");
+                throw new ArgumentOutOfRangeException(nameof(index), index, "Server index is out of range.");
             return (ServerType)(await session.ReadInputRegistersAsync(202, 1, cancellationToken).ConfigureAwait(false))[0];
         }
 
