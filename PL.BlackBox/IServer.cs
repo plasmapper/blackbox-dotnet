@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,6 +23,8 @@ namespace PL.BlackBox
         /// Reads the server configuration.
         /// </summary>
         /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
+        /// <exception cref="Exception">Server control instance is invalid.</exception>
         ServerConfiguration ReadConfiguration();
 
         /// <summary>
@@ -29,12 +32,16 @@ namespace PL.BlackBox
         /// </summary>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
+        /// <exception cref="Exception">Server control instance is invalid.</exception>
         Task<ServerConfiguration> ReadConfigurationAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Reads the server state.
         /// </summary>
         /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
+        /// <exception cref="Exception">Server control instance is invalid.</exception>
         ServerState ReadState();
 
         /// <summary>
@@ -42,12 +49,16 @@ namespace PL.BlackBox
         /// </summary>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
+        /// <exception cref="Exception">Server control instance is invalid.</exception>
         Task<ServerState> ReadStateAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Enables the server.
         /// </summary>
         /// <returns>Set state.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
+        /// <exception cref="Exception">Server control instance is invalid.</exception>
         bool Enable();
 
         /// <summary>
@@ -55,12 +66,16 @@ namespace PL.BlackBox
         /// </summary>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Set state.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
+        /// <exception cref="Exception">Server control instance is invalid.</exception>
         Task<bool> EnableAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Disables the server.
         /// </summary>
         /// <returns>Set state.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
+        /// <exception cref="Exception">Server control instance is invalid.</exception>
         bool Disable();
 
         /// <summary>
@@ -68,6 +83,8 @@ namespace PL.BlackBox
         /// </summary>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Set state.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
+        /// <exception cref="Exception">Server control instance is invalid.</exception>
         Task<bool> DisableAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -75,6 +92,9 @@ namespace PL.BlackBox
         /// </summary>
         /// <param name="port">Network server port.</param>
         /// <returns>Set value.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
+        /// <exception cref="Exception">Server control instance is invalid.</exception>
+        /// <exception cref="NotSupportedException">Type is not NetworkServer, NetworkModbusServer, HttpServer or MdnsServer.</exception>
         ushort SetPort(ushort port);
 
         /// <summary>
@@ -83,6 +103,9 @@ namespace PL.BlackBox
         /// <param name="port">Network server port.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Set value.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
+        /// <exception cref="Exception">Server control instance is invalid.</exception>
+        /// <exception cref="NotSupportedException">Type is not NetworkServer, NetworkModbusServer, HttpServer or MdnsServer.</exception>
         Task<ushort> SetPortAsync(ushort port, CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -90,6 +113,9 @@ namespace PL.BlackBox
         /// </summary>
         /// <param name="maxNumberOfClients">Network server maximum number of clients.</param>
         /// <returns>Set value.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
+        /// <exception cref="Exception">Server control instance is invalid.</exception>
+        /// <exception cref="NotSupportedException">Type is not NetworkServer, NetworkModbusServer, HttpServer or MdnsServer.</exception>
         ushort SetMaxNumberOfClients(ushort maxNumberOfClients);
 
         /// <summary>
@@ -98,6 +124,9 @@ namespace PL.BlackBox
         /// <param name="maxNumberOfClients">Network server maximum number of clients.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Set value.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
+        /// <exception cref="Exception">Server control instance is invalid.</exception>
+        /// <exception cref="NotSupportedException">Type is not NetworkServer, NetworkModbusServer, HttpServer or MdnsServer.</exception>
         Task<ushort> SetMaxNumberOfClientsAsync(ushort maxNumberOfClients, CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -105,6 +134,9 @@ namespace PL.BlackBox
         /// </summary>
         /// <param name="protocol">Modbus protocol.</param>
         /// <returns>Set value</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
+        /// <exception cref="Exception">Server control instance is invalid.</exception>
+        /// <exception cref="NotSupportedException">Type is not StreamModbusServer or NetworkModbusServer.</exception>
         ModbusProtocol SetModbusProtocol(ModbusProtocol protocol);
 
         /// <summary>
@@ -113,6 +145,9 @@ namespace PL.BlackBox
         /// <param name="protocol">Modbus protocol.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Set value</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
+        /// <exception cref="Exception">Server control instance is invalid.</exception>
+        /// <exception cref="NotSupportedException">Type is not StreamModbusServer or NetworkModbusServer.</exception>
         Task<ModbusProtocol> SetModbusProtocolAsync(ModbusProtocol protocol, CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -120,6 +155,9 @@ namespace PL.BlackBox
         /// </summary>
         /// <param name="stationAddress">Modbus station address.</param>
         /// <returns>Set value</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
+        /// <exception cref="Exception">Server control instance is invalid.</exception>
+        /// <exception cref="NotSupportedException">Type is not StreamModbusServer or NetworkModbusServer.</exception>
         byte SetModbusStationAddress(byte stationAddress);
 
         /// <summary>
@@ -128,6 +166,9 @@ namespace PL.BlackBox
         /// <param name="stationAddress">Modbus station address.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Set value</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
+        /// <exception cref="Exception">Server control instance is invalid.</exception>
+        /// <exception cref="NotSupportedException">Type is not StreamModbusServer or NetworkModbusServer.</exception>
         Task<byte> SetModbusStationAddressAsync(byte stationAddress, CancellationToken cancellationToken = default);
     }
 }

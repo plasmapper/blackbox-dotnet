@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -87,6 +88,7 @@ namespace PL.BlackBox
         /// </summary>
         /// <param name="index">Hardware interface index</param>
         /// <returns>Hardware interface control instance.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
         IHardwareInterface GetHardwareInterface(ushort index);
 
         /// <summary>
@@ -95,6 +97,7 @@ namespace PL.BlackBox
         /// <param name="index">Hardware interface index</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Hardware interface control instance.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
         Task<IHardwareInterface> GetHardwareInterfaceAsync(ushort index, CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -102,6 +105,7 @@ namespace PL.BlackBox
         /// </summary>
         /// <param name="index">Server index</param>
         /// <returns>Server control instance.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
         IServer GetServer(ushort index);
 
         /// <summary>
@@ -110,6 +114,7 @@ namespace PL.BlackBox
         /// <param name="index">Server index</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Server control instance.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
         Task<IServer> GetServerAsync(ushort index, CancellationToken cancellationToken = default);
     }
 }
