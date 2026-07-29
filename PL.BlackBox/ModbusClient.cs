@@ -17,6 +17,148 @@ namespace PL.BlackBox
         private const ushort _blackBoxMemoryMapVersion = 1;
         private bool _deviceCompatibilityChecked = false;
 
+        private static class Coils
+        {
+            public const ushort Restart = 0;
+            public const ushort SaveAllConfigurations = 1;
+            public const ushort ClearRestartedBit = 16;
+
+            public const ushort HardwareInterfaceEnabled = 100;
+            public const ushort HardwareInterfaceIpV4DhcpClientEnabled = 101;
+            public const ushort HardwareInterfaceIpV6DhcpClientEnabled = 102;
+
+            public const ushort ServerEnabled = 200;
+        }
+
+        private static class HoldingRegisters
+        {
+            public const ushort DeviceName = 2;
+            public const ushort DeviceNameCount = 16;
+
+            public const ushort SelectedHardwareInterfaceIndex = 18;
+            public const ushort SelectedServerIndex = 19;
+
+            public const ushort HardwareInterfaceConfiguration = 100;
+            public const ushort HardwareInterfaceConfigurationCount = 64;
+
+            public const ushort ServerConfiguration = 200;
+            public const ushort ServerConfigurationCount = 6;
+        }
+
+        private static class InputRegisters
+        {
+            public const ushort DeviceState = 0;
+            public const ushort DeviceStateCount = 61;
+
+            public const ushort HardwareInterfaceType = 102;
+
+            public const ushort HardwareInterfaceState = 100;
+            public const ushort HardwareInterfaceStateCount = 27;
+
+            public const ushort ServerType = 202;
+
+            public const ushort ServerState = 200;
+            public const ushort ServerStateCount = 19;
+        }
+
+        // Offsets of individual fields within the 61-register device state block (InputRegisters.DeviceState).
+        private static class DeviceStateOffsets
+        {
+            public const int StickyStatusBits = 1;
+            public const int RestartedBit = 0x01;
+
+            public const int BlackBoxSignature = 2;
+            public const int BlackBoxSignatureCount = 2;
+            
+            public const int BlackBoxMemoryMapVersion = 4;
+            
+            public const int HardwareName = 5;
+            public const int HardwareNameCount = 16;
+            
+            public const int HardwareVersionMajor = 21;
+            public const int HardwareVersionMinor = 22;
+            public const int HardwareVersionPatch = 23;
+            
+            public const int HardwareUid = 24;
+            public const int HardwareUidCount = 16;
+            
+            public const int FirmwareName = 40;
+            public const int FirmwareNameCount = 16;
+            
+            public const int FirmwareVersionMajor = 56;
+            public const int FirmwareVersionMinor = 57;
+            public const int FirmwareVersionPatch = 58;
+            public const int NumberOfHardwareInterfaces = 59;
+            public const int NumberOfServers = 60;
+        }
+
+        // Offsets of individual fields within the currently selected hardware interface's configuration block
+        // (HoldingRegisters.HardwareInterfaceConfiguration). Some offsets are shared by fields of different
+        // hardware interface types, since the device reuses the same registers for whichever fields apply.
+        private static class HardwareInterfaceConfigurationOffsets
+        {
+            public const int ControlBits = 0;
+            public const int EnabledBit = 0x01;
+            public const int IpV4DhcpClientEnabledBit = 0x02;
+            public const int IpV6DhcpClientEnabledBit = 0x04;
+
+            public const int UartBaudRate = 2;
+            public const int IpV4Address = 2;
+            public const int IpV4Count = 2;
+
+            public const int UartDataBits = 4;
+            public const int IpV4Netmask = 4;
+            public const int UartParity = 5;
+            public const int UartStopBits = 6;
+            public const int IpV4Gateway = 6;
+            public const int UartFlowControl = 7;
+            public const int IpV6GlobalAddress = 8;
+            public const int IpV6GlobalAddressCount = 8;
+
+            public const int WiFiSsid = 16;
+            public const int WiFiSsidCount = 16;
+
+            public const int WiFiPassword = 32;
+            public const int WiFiPasswordCount = 32;
+        }
+
+        // Offsets of individual fields within the currently selected hardware interface's state block
+        // (InputRegisters.HardwareInterfaceState).
+        private static class HardwareInterfaceStateOffsets
+        {
+            public const int StatusBits = 0;
+            public const int ConnectedBit = 0x01;
+
+            public const int Name = 3;
+            public const int NameCount = 16;
+
+            public const int IpV6LocalAddress = 19;
+            public const int IpV6LocalAddressCount = 8;
+        }
+
+        // Offsets of individual fields within the currently selected server's configuration block
+        // (HoldingRegisters.ServerConfiguration). Some offsets are shared by fields of different server types,
+        // since the device reuses the same registers for whichever fields apply.
+        private static class ServerConfigurationOffsets
+        {
+            public const int ControlBits = 0;
+            public const int EnabledBit = 0x01;
+
+            public const int NetworkPort = 2;
+            public const int ModbusProtocol = 2;
+            public const int MaxNumberOfClients = 3;
+            public const int ModbusStationAddress = 3;
+            public const int NetworkModbusServerPort = 4;
+            public const int NetworkModbusServerMaxNumberOfClients = 5;
+        }
+
+        // Offsets of individual fields within the currently selected server's state block (InputRegisters.ServerState).
+        private static class ServerStateOffsets
+        {
+            public const int Name = 3;
+            public const int NameCount = 16;
+        }
+
         /// <summary>
         /// Initializes a new instance of the BlackBox Modbus client class.
         /// </summary>
@@ -83,11 +225,11 @@ namespace PL.BlackBox
 
         /// <inheritdoc />
         public DeviceConfiguration ReadDeviceConfiguration() =>
-            new DeviceConfiguration() { Name = RegistersToString(ReadHoldingRegisters(2, 16)) };
+            new DeviceConfiguration() { Name = RegistersToString(ReadHoldingRegisters(HoldingRegisters.DeviceName, HoldingRegisters.DeviceNameCount)) };
 
         /// <inheritdoc />
         public async Task<DeviceConfiguration> ReadDeviceConfigurationAsync(CancellationToken cancellationToken = default) =>
-            new DeviceConfiguration() { Name = RegistersToString(await ReadHoldingRegistersAsync(2, 16, cancellationToken).ConfigureAwait(false)) };
+            new DeviceConfiguration() { Name = RegistersToString(await ReadHoldingRegistersAsync(HoldingRegisters.DeviceName, HoldingRegisters.DeviceNameCount, cancellationToken).ConfigureAwait(false)) };
 
         /// <inheritdoc />
         public DeviceState ReadDeviceState() => ReadDeviceState(true);
@@ -100,7 +242,7 @@ namespace PL.BlackBox
         {
             try
             {
-                WriteSingleCoil(0, true);
+                WriteSingleCoil(Coils.Restart, true);
             }
             catch { }
         }
@@ -110,30 +252,30 @@ namespace PL.BlackBox
         {
             try
             {
-                await WriteSingleCoilAsync(0, true, cancellationToken).ConfigureAwait(false);
+                await WriteSingleCoilAsync(Coils.Restart, true, cancellationToken).ConfigureAwait(false);
             }
             catch { }
         }
 
         /// <inheritdoc />
-        public void SaveAllConfigurations() => WriteSingleCoil(1, true);
+        public void SaveAllConfigurations() => WriteSingleCoil(Coils.SaveAllConfigurations, true);
 
         /// <inheritdoc />
-        public Task SaveAllConfigurationsAsync(CancellationToken cancellationToken = default) => WriteSingleCoilAsync(1, true, cancellationToken);
+        public Task SaveAllConfigurationsAsync(CancellationToken cancellationToken = default) => WriteSingleCoilAsync(Coils.SaveAllConfigurations, true, cancellationToken);
 
         /// <inheritdoc />
-        public void ClearRestartedFlag() => WriteSingleCoil(16, true);
+        public void ClearRestartedFlag() => WriteSingleCoil(Coils.ClearRestartedBit, true);
 
         /// <inheritdoc />
-        public Task ClearRestartedFlagAsync(CancellationToken cancellationToken = default) => WriteSingleCoilAsync(16, true, cancellationToken);
+        public Task ClearRestartedFlagAsync(CancellationToken cancellationToken = default) => WriteSingleCoilAsync(Coils.ClearRestartedBit, true, cancellationToken);
 
         /// <inheritdoc />
         public string SetDeviceName(string deviceName)
         {
             using (var session = CreateSession())
             {
-                session.WriteMultipleHoldingRegisters(2, StringToRegisters(deviceName, 16, nameof(deviceName)));
-                return RegistersToString(session.ReadHoldingRegisters(2, 16));
+                session.WriteMultipleHoldingRegisters(HoldingRegisters.DeviceName, StringToRegisters(deviceName, HoldingRegisters.DeviceNameCount, nameof(deviceName)));
+                return RegistersToString(session.ReadHoldingRegisters(HoldingRegisters.DeviceName, HoldingRegisters.DeviceNameCount));
             }
         }
 
@@ -142,8 +284,8 @@ namespace PL.BlackBox
         {
             using (var session = await CreateSessionAsync(cancellationToken).ConfigureAwait(false))
             {
-                await session.WriteMultipleHoldingRegistersAsync(2, StringToRegisters(deviceName, 16, nameof(deviceName)), cancellationToken).ConfigureAwait(false);
-                return RegistersToString(await session.ReadHoldingRegistersAsync(2, 16, cancellationToken).ConfigureAwait(false));
+                await session.WriteMultipleHoldingRegistersAsync(HoldingRegisters.DeviceName, StringToRegisters(deviceName, HoldingRegisters.DeviceNameCount, nameof(deviceName)), cancellationToken).ConfigureAwait(false);
+                return RegistersToString(await session.ReadHoldingRegistersAsync(HoldingRegisters.DeviceName, HoldingRegisters.DeviceNameCount, cancellationToken).ConfigureAwait(false));
             }
         }
 
@@ -191,7 +333,7 @@ namespace PL.BlackBox
         // ReadInputRegisters, which would try to open a new session and deadlock.
         private DeviceState ReadDeviceState(bool checkCompatibility)
         {
-            const byte startAddress = 0, registerCount = 61;
+            const byte startAddress = (byte)InputRegisters.DeviceState, registerCount = (byte)InputRegisters.DeviceStateCount;
 
             List<ushort> stateRegisters;
             if (!checkCompatibility)
@@ -208,7 +350,7 @@ namespace PL.BlackBox
                 }
             }
             else
-                stateRegisters = ReadInputRegisters(0, 61);
+                stateRegisters = ReadInputRegisters(InputRegisters.DeviceState, InputRegisters.DeviceStateCount);
 
             return BuildDeviceState(stateRegisters);
         }
@@ -218,7 +360,7 @@ namespace PL.BlackBox
         // ReadInputRegistersAsync, which would try to open a new session and deadlock.
         private async Task<DeviceState> ReadDeviceStateAsync(bool checkCompatibility, CancellationToken cancellationToken)
         {
-            const byte startAddress = 0, registerCount = 61;
+            const byte startAddress = (byte)InputRegisters.DeviceState, registerCount = (byte)InputRegisters.DeviceStateCount;
 
             List<ushort> stateRegisters;
             if (!checkCompatibility)
@@ -235,71 +377,71 @@ namespace PL.BlackBox
                 }
             }
             else
-                stateRegisters = await ReadInputRegistersAsync(0, 61, cancellationToken).ConfigureAwait(false);
+                stateRegisters = await ReadInputRegistersAsync(InputRegisters.DeviceState, InputRegisters.DeviceStateCount, cancellationToken).ConfigureAwait(false);
 
             return BuildDeviceState(stateRegisters);
         }
 
         private static DeviceState BuildDeviceState(List<ushort> stateRegisters) => new DeviceState()
         {
-            Restarted = (stateRegisters[1] & 0x01) != 0,
-            BlackBoxSignature = RegistersToString(stateRegisters.Skip(2).Take(2).ToList()),
-            BlackBoxMemoryMapVersion = stateRegisters[4],
+            Restarted = (stateRegisters[DeviceStateOffsets.StickyStatusBits] & DeviceStateOffsets.RestartedBit) != 0,
+            BlackBoxSignature = RegistersToString(stateRegisters.Skip(DeviceStateOffsets.BlackBoxSignature).Take(DeviceStateOffsets.BlackBoxSignatureCount).ToList()),
+            BlackBoxMemoryMapVersion = stateRegisters[DeviceStateOffsets.BlackBoxMemoryMapVersion],
             HardwareInfo = new HardwareInfo()
             {
-                Name = RegistersToString(stateRegisters.Skip(5).Take(16).ToList()),
+                Name = RegistersToString(stateRegisters.Skip(DeviceStateOffsets.HardwareName).Take(DeviceStateOffsets.HardwareNameCount).ToList()),
                 Version = new Version()
                 {
-                    Major = stateRegisters[21],
-                    Minor = stateRegisters[22],
-                    Patch = stateRegisters[23]
+                    Major = stateRegisters[DeviceStateOffsets.HardwareVersionMajor],
+                    Minor = stateRegisters[DeviceStateOffsets.HardwareVersionMinor],
+                    Patch = stateRegisters[DeviceStateOffsets.HardwareVersionPatch]
                 },
-                Uid = RegistersToString(stateRegisters.Skip(24).Take(16).ToList())
+                Uid = RegistersToString(stateRegisters.Skip(DeviceStateOffsets.HardwareUid).Take(DeviceStateOffsets.HardwareUidCount).ToList())
             },
             FirmwareInfo = new FirmwareInfo()
             {
-                Name = RegistersToString(stateRegisters.Skip(40).Take(16).ToList()),
+                Name = RegistersToString(stateRegisters.Skip(DeviceStateOffsets.FirmwareName).Take(DeviceStateOffsets.FirmwareNameCount).ToList()),
                 Version = new Version()
                 {
-                    Major = stateRegisters[56],
-                    Minor = stateRegisters[57],
-                    Patch = stateRegisters[58]
+                    Major = stateRegisters[DeviceStateOffsets.FirmwareVersionMajor],
+                    Minor = stateRegisters[DeviceStateOffsets.FirmwareVersionMinor],
+                    Patch = stateRegisters[DeviceStateOffsets.FirmwareVersionPatch]
                 }
             },
-            NumberOfHardwareInterfaces = stateRegisters[59],
-            NumberOfServers = stateRegisters[60]
+            NumberOfHardwareInterfaces = stateRegisters[DeviceStateOffsets.NumberOfHardwareInterfaces],
+            NumberOfServers = stateRegisters[DeviceStateOffsets.NumberOfServers]
         };
 
         private HardwareInterfaceType SelectHardwareInterface(Modbus.IClientSession session, ushort index)
         {
-            session.WriteSingleHoldingRegister(18, index);
-            if (session.ReadHoldingRegisters(18, 1)[0] != index)
+            session.WriteSingleHoldingRegister(HoldingRegisters.SelectedHardwareInterfaceIndex, index);
+            if (session.ReadHoldingRegisters(HoldingRegisters.SelectedHardwareInterfaceIndex, 1)[0] != index)
                 throw new ArgumentOutOfRangeException(nameof(index), index, "Hardware interface index is out of range.");
-            return (HardwareInterfaceType)session.ReadInputRegisters(102, 1)[0];
+            return (HardwareInterfaceType)session.ReadInputRegisters(InputRegisters.HardwareInterfaceType, 1)[0];
         }
 
         private async Task<HardwareInterfaceType> SelectHardwareInterfaceAsync(Modbus.IClientSession session, ushort index, CancellationToken cancellationToken)
         {
-            await session.WriteSingleHoldingRegisterAsync(18, index, cancellationToken).ConfigureAwait(false);
-            if ((await session.ReadHoldingRegistersAsync(18, 1, cancellationToken).ConfigureAwait(false))[0] != index)
+            await session.WriteSingleHoldingRegisterAsync(HoldingRegisters.SelectedHardwareInterfaceIndex, index, cancellationToken).ConfigureAwait(false);
+            if ((await session.ReadHoldingRegistersAsync(HoldingRegisters.SelectedHardwareInterfaceIndex, 1, cancellationToken).ConfigureAwait(false))[0] != index)
                 throw new ArgumentOutOfRangeException(nameof(index), index, "Hardware interface index is out of range.");
-            return (HardwareInterfaceType)(await session.ReadInputRegistersAsync(102, 1, cancellationToken).ConfigureAwait(false))[0];
+            return (HardwareInterfaceType)(await session.ReadInputRegistersAsync(InputRegisters.HardwareInterfaceType, 1, cancellationToken).ConfigureAwait(false))[0];
         }
 
         private ServerType SelectServer(Modbus.IClientSession session, ushort index)
         {
-            session.WriteSingleHoldingRegister(19, index);
-            if (session.ReadHoldingRegisters(19, 1)[0] != index)
+            session.WriteSingleHoldingRegister(HoldingRegisters.SelectedServerIndex, index);
+            if (session.ReadHoldingRegisters(HoldingRegisters.SelectedServerIndex, 1)[0] != index)
                 throw new ArgumentOutOfRangeException(nameof(index), index, "Server index is out of range.");
-            return (ServerType)session.ReadInputRegisters(202, 1)[0];
+            return (ServerType)session.ReadInputRegisters(InputRegisters.ServerType, 1)[0];
         }
 
         private async Task<ServerType> SelectServerAsync(Modbus.IClientSession session, ushort index, CancellationToken cancellationToken)
         {
-            await session.WriteSingleHoldingRegisterAsync(19, index, cancellationToken).ConfigureAwait(false);
-            if ((await session.ReadHoldingRegistersAsync(19, 1, cancellationToken).ConfigureAwait(false))[0] != index)
+            await session.WriteSingleHoldingRegisterAsync(HoldingRegisters.SelectedServerIndex, index, cancellationToken).ConfigureAwait(false);
+            if ((await session.ReadHoldingRegistersAsync(HoldingRegisters.SelectedServerIndex, 1, cancellationToken).ConfigureAwait(false))[0] != index)
                 throw new ArgumentOutOfRangeException(nameof(index), index, "Server index is out of range.");
-            return (ServerType)(await session.ReadInputRegistersAsync(202, 1, cancellationToken).ConfigureAwait(false))[0];
+            return (ServerType)(await session.ReadInputRegistersAsync(InputRegisters.ServerType, 1, cancellationToken).ConfigureAwait(false))[0];
         }
 
         private class HardwareInterface : IHardwareInterface
@@ -325,7 +467,7 @@ namespace PL.BlackBox
                 using (var session = _client.CreateSession())
                 {
                     Select(session);
-                    return BuildConfiguration(session.ReadHoldingRegisters(100, 64));
+                    return BuildConfiguration(session.ReadHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration, HoldingRegisters.HardwareInterfaceConfigurationCount));
                 }
             }
 
@@ -334,7 +476,7 @@ namespace PL.BlackBox
                 using (var session = await _client.CreateSessionAsync(cancellationToken).ConfigureAwait(false))
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
-                    return BuildConfiguration(await session.ReadHoldingRegistersAsync(100, 64, cancellationToken).ConfigureAwait(false));
+                    return BuildConfiguration(await session.ReadHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration, HoldingRegisters.HardwareInterfaceConfigurationCount, cancellationToken).ConfigureAwait(false));
                 }
             }
 
@@ -343,30 +485,30 @@ namespace PL.BlackBox
                 var configuration = new HardwareInterfaceConfiguration
                 {
                     HardwareInterfaceType = Type,
-                    IsEnabled = (configurationRegisters[0] & 0x01) != 0
+                    IsEnabled = (configurationRegisters[HardwareInterfaceConfigurationOffsets.ControlBits] & HardwareInterfaceConfigurationOffsets.EnabledBit) != 0
                 };
 
                 if (Type == HardwareInterfaceType.Uart)
                 {
-                    configuration.UartBaudRate = RegistersToUint32(configurationRegisters.Skip(2).Take(2).ToList());
-                    configuration.UartDataBits = configurationRegisters[4];
-                    configuration.UartParity = (UartParity)configurationRegisters[5];
-                    configuration.UartStopBits = (UartStopBits)configurationRegisters[6];
-                    configuration.UartFlowControl = (UartFlowControl)configurationRegisters[7];
+                    configuration.UartBaudRate = RegistersToUint32(configurationRegisters.Skip(HardwareInterfaceConfigurationOffsets.UartBaudRate).Take(2).ToList());
+                    configuration.UartDataBits = configurationRegisters[HardwareInterfaceConfigurationOffsets.UartDataBits];
+                    configuration.UartParity = (UartParity)configurationRegisters[HardwareInterfaceConfigurationOffsets.UartParity];
+                    configuration.UartStopBits = (UartStopBits)configurationRegisters[HardwareInterfaceConfigurationOffsets.UartStopBits];
+                    configuration.UartFlowControl = (UartFlowControl)configurationRegisters[HardwareInterfaceConfigurationOffsets.UartFlowControl];
                 }
 
                 if (_networkInterfaceTypes.Contains(Type))
                 {
-                    configuration.IpV4DhcpClientIsEnabled = (configurationRegisters[0] & 0x02) != 0;
-                    configuration.IpV6DhcpClientIsEnabled = (configurationRegisters[0] & 0x04) != 0;
-                    configuration.IpV4Address = RegistersToIpV4Address(configurationRegisters.Skip(2).Take(2).ToList());
-                    configuration.IpV4Netmask = RegistersToIpV4Address(configurationRegisters.Skip(4).Take(2).ToList());
-                    configuration.IpV4Gateway = RegistersToIpV4Address(configurationRegisters.Skip(6).Take(2).ToList());
-                    configuration.IpV6GlobalAddress = RegistersToIpV6Address(configurationRegisters.Skip(8).Take(8).ToList());
+                    configuration.IpV4DhcpClientIsEnabled = (configurationRegisters[HardwareInterfaceConfigurationOffsets.ControlBits] & HardwareInterfaceConfigurationOffsets.IpV4DhcpClientEnabledBit) != 0;
+                    configuration.IpV6DhcpClientIsEnabled = (configurationRegisters[HardwareInterfaceConfigurationOffsets.ControlBits] & HardwareInterfaceConfigurationOffsets.IpV6DhcpClientEnabledBit) != 0;
+                    configuration.IpV4Address = RegistersToIpV4Address(configurationRegisters.Skip(HardwareInterfaceConfigurationOffsets.IpV4Address).Take(HardwareInterfaceConfigurationOffsets.IpV4Count).ToList());
+                    configuration.IpV4Netmask = RegistersToIpV4Address(configurationRegisters.Skip(HardwareInterfaceConfigurationOffsets.IpV4Netmask).Take(HardwareInterfaceConfigurationOffsets.IpV4Count).ToList());
+                    configuration.IpV4Gateway = RegistersToIpV4Address(configurationRegisters.Skip(HardwareInterfaceConfigurationOffsets.IpV4Gateway).Take(HardwareInterfaceConfigurationOffsets.IpV4Count).ToList());
+                    configuration.IpV6GlobalAddress = RegistersToIpV6Address(configurationRegisters.Skip(HardwareInterfaceConfigurationOffsets.IpV6GlobalAddress).Take(HardwareInterfaceConfigurationOffsets.IpV6GlobalAddressCount).ToList());
                 }
 
                 if (Type == HardwareInterfaceType.WifiStation)
-                    configuration.WiFiSsid = RegistersToString(configurationRegisters.Skip(16).Take(16).ToList());
+                    configuration.WiFiSsid = RegistersToString(configurationRegisters.Skip(HardwareInterfaceConfigurationOffsets.WiFiSsid).Take(HardwareInterfaceConfigurationOffsets.WiFiSsidCount).ToList());
 
                 return configuration;
             }
@@ -376,7 +518,7 @@ namespace PL.BlackBox
                 using (var session = _client.CreateSession())
                 {
                     Select(session);
-                    return BuildState(session.ReadInputRegisters(100, 27));
+                    return BuildState(session.ReadInputRegisters(InputRegisters.HardwareInterfaceState, InputRegisters.HardwareInterfaceStateCount));
                 }
             }
 
@@ -385,7 +527,7 @@ namespace PL.BlackBox
                 using (var session = await _client.CreateSessionAsync(cancellationToken).ConfigureAwait(false))
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
-                    return BuildState(await session.ReadInputRegistersAsync(100, 27, cancellationToken).ConfigureAwait(false));
+                    return BuildState(await session.ReadInputRegistersAsync(InputRegisters.HardwareInterfaceState, InputRegisters.HardwareInterfaceStateCount, cancellationToken).ConfigureAwait(false));
                 }
             }
 
@@ -394,13 +536,13 @@ namespace PL.BlackBox
                 var state = new HardwareInterfaceState
                 {
                     HardwareInterfaceType = Type,
-                    Name = RegistersToString(stateRegisters.Skip(3).Take(16).ToList())
+                    Name = RegistersToString(stateRegisters.Skip(HardwareInterfaceStateOffsets.Name).Take(HardwareInterfaceStateOffsets.NameCount).ToList())
                 };
 
                 if (_networkInterfaceTypes.Contains(Type))
                 {
-                    state.IsConnected = (stateRegisters[0] & 0x01) != 0;
-                    state.IpV6LocalAddress = RegistersToIpV6Address(stateRegisters.Skip(19).Take(8).ToList());
+                    state.IsConnected = (stateRegisters[HardwareInterfaceStateOffsets.StatusBits] & HardwareInterfaceStateOffsets.ConnectedBit) != 0;
+                    state.IpV6LocalAddress = RegistersToIpV6Address(stateRegisters.Skip(HardwareInterfaceStateOffsets.IpV6LocalAddress).Take(HardwareInterfaceStateOffsets.IpV6LocalAddressCount).ToList());
                 }
 
                 return state;
@@ -411,8 +553,8 @@ namespace PL.BlackBox
                 using (var session = _client.CreateSession())
                 {
                     Select(session);
-                    session.WriteSingleCoil(100, true);
-                    return session.ReadCoils(100, 1)[0];
+                    session.WriteSingleCoil(Coils.HardwareInterfaceEnabled, true);
+                    return session.ReadCoils(Coils.HardwareInterfaceEnabled, 1)[0];
                 }
             }
 
@@ -421,8 +563,8 @@ namespace PL.BlackBox
                 using (var session = await _client.CreateSessionAsync(cancellationToken).ConfigureAwait(false))
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
-                    await session.WriteSingleCoilAsync(100, true, cancellationToken).ConfigureAwait(false);
-                    return (await session.ReadCoilsAsync(100, 1, cancellationToken).ConfigureAwait(false))[0];
+                    await session.WriteSingleCoilAsync(Coils.HardwareInterfaceEnabled, true, cancellationToken).ConfigureAwait(false);
+                    return (await session.ReadCoilsAsync(Coils.HardwareInterfaceEnabled, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
             }
 
@@ -431,8 +573,8 @@ namespace PL.BlackBox
                 using (var session = _client.CreateSession())
                 {
                     Select(session);
-                    session.WriteSingleCoil(100, false);
-                    return session.ReadCoils(100, 1)[0];
+                    session.WriteSingleCoil(Coils.HardwareInterfaceEnabled, false);
+                    return session.ReadCoils(Coils.HardwareInterfaceEnabled, 1)[0];
                 }
             }
 
@@ -441,8 +583,8 @@ namespace PL.BlackBox
                 using (var session = await _client.CreateSessionAsync(cancellationToken).ConfigureAwait(false))
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
-                    await session.WriteSingleCoilAsync(100, false, cancellationToken).ConfigureAwait(false);
-                    return (await session.ReadCoilsAsync(100, 1, cancellationToken).ConfigureAwait(false))[0];
+                    await session.WriteSingleCoilAsync(Coils.HardwareInterfaceEnabled, false, cancellationToken).ConfigureAwait(false);
+                    return (await session.ReadCoilsAsync(Coils.HardwareInterfaceEnabled, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
             }
 
@@ -453,8 +595,8 @@ namespace PL.BlackBox
                     Select(session);
                     if (Type != HardwareInterfaceType.Uart)
                         throw new NotSupportedException("Type is not Uart.");
-                    session.WriteMultipleHoldingRegisters(102, Uint32ToRegisters(baudRate));
-                    return RegistersToUint32(session.ReadHoldingRegisters(102, 2));
+                    session.WriteMultipleHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartBaudRate, Uint32ToRegisters(baudRate));
+                    return RegistersToUint32(session.ReadHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartBaudRate, 2));
                 }
             }
 
@@ -465,8 +607,8 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (Type != HardwareInterfaceType.Uart)
                         throw new NotSupportedException("Type is not Uart.");
-                    await session.WriteMultipleHoldingRegistersAsync(102, Uint32ToRegisters(baudRate), cancellationToken).ConfigureAwait(false);
-                    return RegistersToUint32(await session.ReadHoldingRegistersAsync(102, 2, cancellationToken).ConfigureAwait(false));
+                    await session.WriteMultipleHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartBaudRate, Uint32ToRegisters(baudRate), cancellationToken).ConfigureAwait(false);
+                    return RegistersToUint32(await session.ReadHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartBaudRate, 2, cancellationToken).ConfigureAwait(false));
                 }
             }
 
@@ -477,8 +619,8 @@ namespace PL.BlackBox
                     Select(session);
                     if (Type != HardwareInterfaceType.Uart)
                         throw new NotSupportedException("Type is not Uart.");
-                    session.WriteSingleHoldingRegister(104, dataBits);
-                    return session.ReadHoldingRegisters(104, 1)[0];
+                    session.WriteSingleHoldingRegister(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartDataBits, dataBits);
+                    return session.ReadHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartDataBits, 1)[0];
                 }
             }
 
@@ -489,8 +631,8 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (Type != HardwareInterfaceType.Uart)
                         throw new NotSupportedException("Type is not Uart.");
-                    await session.WriteSingleHoldingRegisterAsync(104, dataBits, cancellationToken).ConfigureAwait(false);
-                    return (await session.ReadHoldingRegistersAsync(104, 1, cancellationToken).ConfigureAwait(false))[0];
+                    await session.WriteSingleHoldingRegisterAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartDataBits, dataBits, cancellationToken).ConfigureAwait(false);
+                    return (await session.ReadHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartDataBits, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
             }
 
@@ -501,8 +643,8 @@ namespace PL.BlackBox
                     Select(session);
                     if (Type != HardwareInterfaceType.Uart)
                         throw new NotSupportedException("Type is not Uart.");
-                    session.WriteSingleHoldingRegister(105, (ushort)parity);
-                    return (UartParity)session.ReadHoldingRegisters(105, 1)[0];
+                    session.WriteSingleHoldingRegister(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartParity, (ushort)parity);
+                    return (UartParity)session.ReadHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartParity, 1)[0];
                 }
             }
 
@@ -513,8 +655,8 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (Type != HardwareInterfaceType.Uart)
                         throw new NotSupportedException("Type is not Uart.");
-                    await session.WriteSingleHoldingRegisterAsync(105, (ushort)parity, cancellationToken).ConfigureAwait(false);
-                    return (UartParity)(await session.ReadHoldingRegistersAsync(105, 1, cancellationToken).ConfigureAwait(false))[0];
+                    await session.WriteSingleHoldingRegisterAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartParity, (ushort)parity, cancellationToken).ConfigureAwait(false);
+                    return (UartParity)(await session.ReadHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartParity, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
             }
 
@@ -525,8 +667,8 @@ namespace PL.BlackBox
                     Select(session);
                     if (Type != HardwareInterfaceType.Uart)
                         throw new NotSupportedException("Type is not Uart.");
-                    session.WriteSingleHoldingRegister(106, (ushort)stopBits);
-                    return (UartStopBits)session.ReadHoldingRegisters(106, 1)[0];
+                    session.WriteSingleHoldingRegister(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartStopBits, (ushort)stopBits);
+                    return (UartStopBits)session.ReadHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartStopBits, 1)[0];
                 }
             }
 
@@ -537,8 +679,8 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (Type != HardwareInterfaceType.Uart)
                         throw new NotSupportedException("Type is not Uart.");
-                    await session.WriteSingleHoldingRegisterAsync(106, (ushort)stopBits, cancellationToken).ConfigureAwait(false);
-                    return (UartStopBits)(await session.ReadHoldingRegistersAsync(106, 1, cancellationToken).ConfigureAwait(false))[0];
+                    await session.WriteSingleHoldingRegisterAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartStopBits, (ushort)stopBits, cancellationToken).ConfigureAwait(false);
+                    return (UartStopBits)(await session.ReadHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartStopBits, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
             }
 
@@ -549,8 +691,8 @@ namespace PL.BlackBox
                     Select(session);
                     if (Type != HardwareInterfaceType.Uart)
                         throw new NotSupportedException("Type is not Uart.");
-                    session.WriteSingleHoldingRegister(107, (ushort)flowControl);
-                    return (UartFlowControl)session.ReadHoldingRegisters(107, 1)[0];
+                    session.WriteSingleHoldingRegister(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartFlowControl, (ushort)flowControl);
+                    return (UartFlowControl)session.ReadHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartFlowControl, 1)[0];
                 }
             }
 
@@ -561,8 +703,8 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (Type != HardwareInterfaceType.Uart)
                         throw new NotSupportedException("Type is not Uart.");
-                    await session.WriteSingleHoldingRegisterAsync(107, (ushort)flowControl, cancellationToken).ConfigureAwait(false);
-                    return (UartFlowControl)(await session.ReadHoldingRegistersAsync(107, 1, cancellationToken).ConfigureAwait(false))[0];
+                    await session.WriteSingleHoldingRegisterAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartFlowControl, (ushort)flowControl, cancellationToken).ConfigureAwait(false);
+                    return (UartFlowControl)(await session.ReadHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.UartFlowControl, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
             }
 
@@ -573,8 +715,8 @@ namespace PL.BlackBox
                     Select(session);
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
-                    session.WriteSingleCoil(101, true);
-                    return session.ReadCoils(101, 1)[0];
+                    session.WriteSingleCoil(Coils.HardwareInterfaceIpV4DhcpClientEnabled, true);
+                    return session.ReadCoils(Coils.HardwareInterfaceIpV4DhcpClientEnabled, 1)[0];
                 }
             }
 
@@ -585,8 +727,8 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
-                    await session.WriteSingleCoilAsync(101, true, cancellationToken).ConfigureAwait(false);
-                    return (await session.ReadCoilsAsync(101, 1, cancellationToken).ConfigureAwait(false))[0];
+                    await session.WriteSingleCoilAsync(Coils.HardwareInterfaceIpV4DhcpClientEnabled, true, cancellationToken).ConfigureAwait(false);
+                    return (await session.ReadCoilsAsync(Coils.HardwareInterfaceIpV4DhcpClientEnabled, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
             }
 
@@ -597,8 +739,8 @@ namespace PL.BlackBox
                     Select(session);
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
-                    session.WriteSingleCoil(101, false);
-                    return session.ReadCoils(101, 1)[0];
+                    session.WriteSingleCoil(Coils.HardwareInterfaceIpV4DhcpClientEnabled, false);
+                    return session.ReadCoils(Coils.HardwareInterfaceIpV4DhcpClientEnabled, 1)[0];
                 }
             }
 
@@ -609,8 +751,8 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
-                    await session.WriteSingleCoilAsync(101, false, cancellationToken).ConfigureAwait(false);
-                    return (await session.ReadCoilsAsync(101, 1, cancellationToken).ConfigureAwait(false))[0];
+                    await session.WriteSingleCoilAsync(Coils.HardwareInterfaceIpV4DhcpClientEnabled, false, cancellationToken).ConfigureAwait(false);
+                    return (await session.ReadCoilsAsync(Coils.HardwareInterfaceIpV4DhcpClientEnabled, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
             }
 
@@ -621,8 +763,8 @@ namespace PL.BlackBox
                     Select(session);
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
-                    session.WriteSingleCoil(102, true);
-                    return session.ReadCoils(102, 1)[0];
+                    session.WriteSingleCoil(Coils.HardwareInterfaceIpV6DhcpClientEnabled, true);
+                    return session.ReadCoils(Coils.HardwareInterfaceIpV6DhcpClientEnabled, 1)[0];
                 }
             }
 
@@ -633,8 +775,8 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
-                    await session.WriteSingleCoilAsync(102, true, cancellationToken).ConfigureAwait(false);
-                    return (await session.ReadCoilsAsync(102, 1, cancellationToken).ConfigureAwait(false))[0];
+                    await session.WriteSingleCoilAsync(Coils.HardwareInterfaceIpV6DhcpClientEnabled, true, cancellationToken).ConfigureAwait(false);
+                    return (await session.ReadCoilsAsync(Coils.HardwareInterfaceIpV6DhcpClientEnabled, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
             }
 
@@ -645,8 +787,8 @@ namespace PL.BlackBox
                     Select(session);
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
-                    session.WriteSingleCoil(102, false);
-                    return session.ReadCoils(102, 1)[0];
+                    session.WriteSingleCoil(Coils.HardwareInterfaceIpV6DhcpClientEnabled, false);
+                    return session.ReadCoils(Coils.HardwareInterfaceIpV6DhcpClientEnabled, 1)[0];
                 }
             }
 
@@ -657,8 +799,8 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
-                    await session.WriteSingleCoilAsync(102, false, cancellationToken).ConfigureAwait(false);
-                    return (await session.ReadCoilsAsync(102, 1, cancellationToken).ConfigureAwait(false))[0];
+                    await session.WriteSingleCoilAsync(Coils.HardwareInterfaceIpV6DhcpClientEnabled, false, cancellationToken).ConfigureAwait(false);
+                    return (await session.ReadCoilsAsync(Coils.HardwareInterfaceIpV6DhcpClientEnabled, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
             }
 
@@ -669,8 +811,8 @@ namespace PL.BlackBox
                     Select(session);
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
-                    session.WriteMultipleHoldingRegisters(102, IpV4AddressToRegisters(ipV4Address));
-                    return RegistersToIpV4Address(session.ReadHoldingRegisters(102, 2));
+                    session.WriteMultipleHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.IpV4Address, IpV4AddressToRegisters(ipV4Address));
+                    return RegistersToIpV4Address(session.ReadHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.IpV4Address, HardwareInterfaceConfigurationOffsets.IpV4Count));
                 }
             }
 
@@ -681,8 +823,8 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
-                    await session.WriteMultipleHoldingRegistersAsync(102, IpV4AddressToRegisters(ipV4Address), cancellationToken).ConfigureAwait(false);
-                    return RegistersToIpV4Address(await session.ReadHoldingRegistersAsync(102, 2, cancellationToken).ConfigureAwait(false));
+                    await session.WriteMultipleHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.IpV4Address, IpV4AddressToRegisters(ipV4Address), cancellationToken).ConfigureAwait(false);
+                    return RegistersToIpV4Address(await session.ReadHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.IpV4Address, HardwareInterfaceConfigurationOffsets.IpV4Count, cancellationToken).ConfigureAwait(false));
                 }
             }
 
@@ -693,8 +835,8 @@ namespace PL.BlackBox
                     Select(session);
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
-                    session.WriteMultipleHoldingRegisters(104, IpV4AddressToRegisters(ipV4Netmask));
-                    return RegistersToIpV4Address(session.ReadHoldingRegisters(104, 2));
+                    session.WriteMultipleHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.IpV4Netmask, IpV4AddressToRegisters(ipV4Netmask));
+                    return RegistersToIpV4Address(session.ReadHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.IpV4Netmask, HardwareInterfaceConfigurationOffsets.IpV4Count));
                 }
             }
 
@@ -705,8 +847,8 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
-                    await session.WriteMultipleHoldingRegistersAsync(104, IpV4AddressToRegisters(ipV4Netmask), cancellationToken).ConfigureAwait(false);
-                    return RegistersToIpV4Address(await session.ReadHoldingRegistersAsync(104, 2, cancellationToken).ConfigureAwait(false));
+                    await session.WriteMultipleHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.IpV4Netmask, IpV4AddressToRegisters(ipV4Netmask), cancellationToken).ConfigureAwait(false);
+                    return RegistersToIpV4Address(await session.ReadHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.IpV4Netmask, HardwareInterfaceConfigurationOffsets.IpV4Count, cancellationToken).ConfigureAwait(false));
                 }
             }
 
@@ -717,8 +859,8 @@ namespace PL.BlackBox
                     Select(session);
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
-                    session.WriteMultipleHoldingRegisters(106, IpV4AddressToRegisters(ipV4Gateway));
-                    return RegistersToIpV4Address(session.ReadHoldingRegisters(106, 2));
+                    session.WriteMultipleHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.IpV4Gateway, IpV4AddressToRegisters(ipV4Gateway));
+                    return RegistersToIpV4Address(session.ReadHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.IpV4Gateway, HardwareInterfaceConfigurationOffsets.IpV4Count));
                 }
             }
 
@@ -729,8 +871,8 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
-                    await session.WriteMultipleHoldingRegistersAsync(106, IpV4AddressToRegisters(ipV4Gateway), cancellationToken).ConfigureAwait(false);
-                    return RegistersToIpV4Address(await session.ReadHoldingRegistersAsync(106, 2, cancellationToken).ConfigureAwait(false));
+                    await session.WriteMultipleHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.IpV4Gateway, IpV4AddressToRegisters(ipV4Gateway), cancellationToken).ConfigureAwait(false);
+                    return RegistersToIpV4Address(await session.ReadHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.IpV4Gateway, HardwareInterfaceConfigurationOffsets.IpV4Count, cancellationToken).ConfigureAwait(false));
                 }
             }
 
@@ -741,8 +883,8 @@ namespace PL.BlackBox
                     Select(session);
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
-                    session.WriteMultipleHoldingRegisters(108, IpV6AddressToRegisters(ipV6GlobalAddress));
-                    return RegistersToIpV6Address(session.ReadHoldingRegisters(108, 8));
+                    session.WriteMultipleHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.IpV6GlobalAddress, IpV6AddressToRegisters(ipV6GlobalAddress));
+                    return RegistersToIpV6Address(session.ReadHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.IpV6GlobalAddress, HardwareInterfaceConfigurationOffsets.IpV6GlobalAddressCount));
                 }
             }
 
@@ -753,8 +895,8 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_networkInterfaceTypes.Contains(Type))
                         throw new NotSupportedException("Type is not NetworkInterface, Ethernet or WifiStation.");
-                    await session.WriteMultipleHoldingRegistersAsync(108, IpV6AddressToRegisters(ipV6GlobalAddress), cancellationToken).ConfigureAwait(false);
-                    return RegistersToIpV6Address(await session.ReadHoldingRegistersAsync(108, 8, cancellationToken).ConfigureAwait(false));
+                    await session.WriteMultipleHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.IpV6GlobalAddress, IpV6AddressToRegisters(ipV6GlobalAddress), cancellationToken).ConfigureAwait(false);
+                    return RegistersToIpV6Address(await session.ReadHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.IpV6GlobalAddress, HardwareInterfaceConfigurationOffsets.IpV6GlobalAddressCount, cancellationToken).ConfigureAwait(false));
                 }
             }
 
@@ -765,8 +907,8 @@ namespace PL.BlackBox
                     Select(session);
                     if (Type != HardwareInterfaceType.WifiStation)
                         throw new NotSupportedException("Type is not WifiStation.");
-                    session.WriteMultipleHoldingRegisters(116, StringToRegisters(ssid, 16, nameof(ssid)));
-                    return RegistersToString(session.ReadHoldingRegisters(116, 16));
+                    session.WriteMultipleHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.WiFiSsid, StringToRegisters(ssid, HardwareInterfaceConfigurationOffsets.WiFiSsidCount, nameof(ssid)));
+                    return RegistersToString(session.ReadHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.WiFiSsid, HardwareInterfaceConfigurationOffsets.WiFiSsidCount));
                 }
             }
 
@@ -777,8 +919,8 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (Type != HardwareInterfaceType.WifiStation)
                         throw new NotSupportedException("Type is not WifiStation.");
-                    await session.WriteMultipleHoldingRegistersAsync(116, StringToRegisters(ssid, 16, nameof(ssid)), cancellationToken).ConfigureAwait(false);
-                    return RegistersToString(await session.ReadHoldingRegistersAsync(116, 16, cancellationToken).ConfigureAwait(false));
+                    await session.WriteMultipleHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.WiFiSsid, StringToRegisters(ssid, HardwareInterfaceConfigurationOffsets.WiFiSsidCount, nameof(ssid)), cancellationToken).ConfigureAwait(false);
+                    return RegistersToString(await session.ReadHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.WiFiSsid, HardwareInterfaceConfigurationOffsets.WiFiSsidCount, cancellationToken).ConfigureAwait(false));
                 }
             }
 
@@ -789,7 +931,7 @@ namespace PL.BlackBox
                     Select(session);
                     if (Type != HardwareInterfaceType.WifiStation)
                         throw new NotSupportedException("Type is not WifiStation.");
-                    session.WriteMultipleHoldingRegisters(132, StringToRegisters(password, 32, nameof(password)));
+                    session.WriteMultipleHoldingRegisters(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.WiFiPassword, StringToRegisters(password, HardwareInterfaceConfigurationOffsets.WiFiPasswordCount, nameof(password)));
                 }
             }
 
@@ -800,7 +942,7 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (Type != HardwareInterfaceType.WifiStation)
                         throw new NotSupportedException("Type is not WifiStation.");
-                    await session.WriteMultipleHoldingRegistersAsync(132, StringToRegisters(password, 32, nameof(password)), cancellationToken).ConfigureAwait(false);
+                    await session.WriteMultipleHoldingRegistersAsync(HoldingRegisters.HardwareInterfaceConfiguration + HardwareInterfaceConfigurationOffsets.WiFiPassword, StringToRegisters(password, HardwareInterfaceConfigurationOffsets.WiFiPasswordCount, nameof(password)), cancellationToken).ConfigureAwait(false);
                 }
             }
 
@@ -843,7 +985,7 @@ namespace PL.BlackBox
                 using (var session = _client.CreateSession())
                 {
                     Select(session);
-                    return BuildConfiguration(session.ReadHoldingRegisters(200, 6));
+                    return BuildConfiguration(session.ReadHoldingRegisters(HoldingRegisters.ServerConfiguration, HoldingRegisters.ServerConfigurationCount));
                 }
             }
 
@@ -852,7 +994,7 @@ namespace PL.BlackBox
                 using (var session = await _client.CreateSessionAsync(cancellationToken).ConfigureAwait(false))
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
-                    return BuildConfiguration(await session.ReadHoldingRegistersAsync(200, 6, cancellationToken).ConfigureAwait(false));
+                    return BuildConfiguration(await session.ReadHoldingRegistersAsync(HoldingRegisters.ServerConfiguration, HoldingRegisters.ServerConfigurationCount, cancellationToken).ConfigureAwait(false));
                 }
             }
 
@@ -861,25 +1003,25 @@ namespace PL.BlackBox
                 var configuration = new ServerConfiguration
                 {
                     ServerType = Type,
-                    IsEnabled = (configurationRegisters[0] & 0x01) != 0
+                    IsEnabled = (configurationRegisters[ServerConfigurationOffsets.ControlBits] & ServerConfigurationOffsets.EnabledBit) != 0
                 };
 
                 if (_serverWithPortTypes.Contains(Type))
                 {
-                    configuration.NetworkPort = configurationRegisters[2];
-                    configuration.MaxNumberOfClients = configurationRegisters[3];
+                    configuration.NetworkPort = configurationRegisters[ServerConfigurationOffsets.NetworkPort];
+                    configuration.MaxNumberOfClients = configurationRegisters[ServerConfigurationOffsets.MaxNumberOfClients];
                 }
 
                 if (_modbusServerTypes.Contains(Type))
                 {
-                    configuration.ModbusProtocol = (ModbusProtocol)configurationRegisters[2];
-                    configuration.ModbusStationAddress = (byte)configurationRegisters[3];
+                    configuration.ModbusProtocol = (ModbusProtocol)configurationRegisters[ServerConfigurationOffsets.ModbusProtocol];
+                    configuration.ModbusStationAddress = (byte)configurationRegisters[ServerConfigurationOffsets.ModbusStationAddress];
                 }
 
                 if (Type == ServerType.NetworkModbusServer)
                 {
-                    configuration.NetworkPort = configurationRegisters[4];
-                    configuration.MaxNumberOfClients = configurationRegisters[5];
+                    configuration.NetworkPort = configurationRegisters[ServerConfigurationOffsets.NetworkModbusServerPort];
+                    configuration.MaxNumberOfClients = configurationRegisters[ServerConfigurationOffsets.NetworkModbusServerMaxNumberOfClients];
                 }
 
                 return configuration;
@@ -890,7 +1032,7 @@ namespace PL.BlackBox
                 using (var session = _client.CreateSession())
                 {
                     Select(session);
-                    return BuildState(session.ReadInputRegisters(200, 19));
+                    return BuildState(session.ReadInputRegisters(InputRegisters.ServerState, InputRegisters.ServerStateCount));
                 }
             }
 
@@ -899,14 +1041,14 @@ namespace PL.BlackBox
                 using (var session = await _client.CreateSessionAsync(cancellationToken).ConfigureAwait(false))
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
-                    return BuildState(await session.ReadInputRegistersAsync(200, 19, cancellationToken).ConfigureAwait(false));
+                    return BuildState(await session.ReadInputRegistersAsync(InputRegisters.ServerState, InputRegisters.ServerStateCount, cancellationToken).ConfigureAwait(false));
                 }
             }
 
             private ServerState BuildState(List<ushort> stateRegisters) => new ServerState
             {
                 ServerType = Type,
-                Name = RegistersToString(stateRegisters.Skip(3).Take(16).ToList())
+                Name = RegistersToString(stateRegisters.Skip(ServerStateOffsets.Name).Take(ServerStateOffsets.NameCount).ToList())
             };
 
             public bool Enable()
@@ -914,8 +1056,8 @@ namespace PL.BlackBox
                 using (var session = _client.CreateSession())
                 {
                     Select(session);
-                    session.WriteSingleCoil(200, true);
-                    return session.ReadCoils(200, 1)[0];
+                    session.WriteSingleCoil(Coils.ServerEnabled, true);
+                    return session.ReadCoils(Coils.ServerEnabled, 1)[0];
                 }
             }
 
@@ -924,8 +1066,8 @@ namespace PL.BlackBox
                 using (var session = await _client.CreateSessionAsync(cancellationToken).ConfigureAwait(false))
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
-                    await session.WriteSingleCoilAsync(200, true, cancellationToken).ConfigureAwait(false);
-                    return (await session.ReadCoilsAsync(200, 1, cancellationToken).ConfigureAwait(false))[0];
+                    await session.WriteSingleCoilAsync(Coils.ServerEnabled, true, cancellationToken).ConfigureAwait(false);
+                    return (await session.ReadCoilsAsync(Coils.ServerEnabled, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
             }
 
@@ -934,8 +1076,8 @@ namespace PL.BlackBox
                 using (var session = _client.CreateSession())
                 {
                     Select(session);
-                    session.WriteSingleCoil(200, false);
-                    return session.ReadCoils(200, 1)[0];
+                    session.WriteSingleCoil(Coils.ServerEnabled, false);
+                    return session.ReadCoils(Coils.ServerEnabled, 1)[0];
                 }
             }
 
@@ -944,8 +1086,8 @@ namespace PL.BlackBox
                 using (var session = await _client.CreateSessionAsync(cancellationToken).ConfigureAwait(false))
                 {
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
-                    await session.WriteSingleCoilAsync(200, false, cancellationToken).ConfigureAwait(false);
-                    return (await session.ReadCoilsAsync(200, 1, cancellationToken).ConfigureAwait(false))[0];
+                    await session.WriteSingleCoilAsync(Coils.ServerEnabled, false, cancellationToken).ConfigureAwait(false);
+                    return (await session.ReadCoilsAsync(Coils.ServerEnabled, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
             }
 
@@ -956,13 +1098,13 @@ namespace PL.BlackBox
                     Select(session);
                     if (_serverWithPortTypes.Contains(Type))
                     {
-                        session.WriteSingleHoldingRegister(202, port);
-                        return session.ReadHoldingRegisters(202, 1)[0];
+                        session.WriteSingleHoldingRegister(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.NetworkPort, port);
+                        return session.ReadHoldingRegisters(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.NetworkPort, 1)[0];
                     }
                     if (Type == ServerType.NetworkModbusServer)
                     {
-                        session.WriteSingleHoldingRegister(204, port);
-                        return session.ReadHoldingRegisters(204, 1)[0];
+                        session.WriteSingleHoldingRegister(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.NetworkModbusServerPort, port);
+                        return session.ReadHoldingRegisters(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.NetworkModbusServerPort, 1)[0];
                     }
                     throw new NotSupportedException("Type is not NetworkServer, NetworkModbusServer, HttpServer or MdnsServer.");
                 }
@@ -975,13 +1117,13 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (_serverWithPortTypes.Contains(Type))
                     {
-                        await session.WriteSingleHoldingRegisterAsync(202, port, cancellationToken).ConfigureAwait(false);
-                        return (await session.ReadHoldingRegistersAsync(202, 1, cancellationToken).ConfigureAwait(false))[0];
+                        await session.WriteSingleHoldingRegisterAsync(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.NetworkPort, port, cancellationToken).ConfigureAwait(false);
+                        return (await session.ReadHoldingRegistersAsync(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.NetworkPort, 1, cancellationToken).ConfigureAwait(false))[0];
                     }
                     if (Type == ServerType.NetworkModbusServer)
                     {
-                        await session.WriteSingleHoldingRegisterAsync(204, port, cancellationToken).ConfigureAwait(false);
-                        return (await session.ReadHoldingRegistersAsync(204, 1, cancellationToken).ConfigureAwait(false))[0];
+                        await session.WriteSingleHoldingRegisterAsync(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.NetworkModbusServerPort, port, cancellationToken).ConfigureAwait(false);
+                        return (await session.ReadHoldingRegistersAsync(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.NetworkModbusServerPort, 1, cancellationToken).ConfigureAwait(false))[0];
                     }
                     throw new NotSupportedException("Type is not NetworkServer, NetworkModbusServer, HttpServer or MdnsServer.");
                 }
@@ -994,13 +1136,13 @@ namespace PL.BlackBox
                     Select(session);
                     if (_serverWithPortTypes.Contains(Type))
                     {
-                        session.WriteSingleHoldingRegister(203, maxNumberOfClients);
-                        return session.ReadHoldingRegisters(203, 1)[0];
+                        session.WriteSingleHoldingRegister(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.MaxNumberOfClients, maxNumberOfClients);
+                        return session.ReadHoldingRegisters(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.MaxNumberOfClients, 1)[0];
                     }
                     if (Type == ServerType.NetworkModbusServer)
                     {
-                        session.WriteSingleHoldingRegister(205, maxNumberOfClients);
-                        return session.ReadHoldingRegisters(205, 1)[0];
+                        session.WriteSingleHoldingRegister(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.NetworkModbusServerMaxNumberOfClients, maxNumberOfClients);
+                        return session.ReadHoldingRegisters(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.NetworkModbusServerMaxNumberOfClients, 1)[0];
                     }
                     throw new NotSupportedException("Type is not NetworkServer, NetworkModbusServer, HttpServer or MdnsServer.");
                 }
@@ -1013,13 +1155,13 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (_serverWithPortTypes.Contains(Type))
                     {
-                        await session.WriteSingleHoldingRegisterAsync(203, maxNumberOfClients, cancellationToken).ConfigureAwait(false);
-                        return (await session.ReadHoldingRegistersAsync(203, 1, cancellationToken).ConfigureAwait(false))[0];
+                        await session.WriteSingleHoldingRegisterAsync(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.MaxNumberOfClients, maxNumberOfClients, cancellationToken).ConfigureAwait(false);
+                        return (await session.ReadHoldingRegistersAsync(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.MaxNumberOfClients, 1, cancellationToken).ConfigureAwait(false))[0];
                     }
                     if (Type == ServerType.NetworkModbusServer)
                     {
-                        await session.WriteSingleHoldingRegisterAsync(205, maxNumberOfClients, cancellationToken).ConfigureAwait(false);
-                        return (await session.ReadHoldingRegistersAsync(205, 1, cancellationToken).ConfigureAwait(false))[0];
+                        await session.WriteSingleHoldingRegisterAsync(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.NetworkModbusServerMaxNumberOfClients, maxNumberOfClients, cancellationToken).ConfigureAwait(false);
+                        return (await session.ReadHoldingRegistersAsync(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.NetworkModbusServerMaxNumberOfClients, 1, cancellationToken).ConfigureAwait(false))[0];
                     }
                     throw new NotSupportedException("Type is not NetworkServer, NetworkModbusServer, HttpServer or MdnsServer.");
                 }
@@ -1032,8 +1174,8 @@ namespace PL.BlackBox
                     Select(session);
                     if (!_modbusServerTypes.Contains(Type))
                         throw new NotSupportedException("Type is not StreamModbusServer or NetworkModbusServer.");
-                    session.WriteSingleHoldingRegister(202, (ushort)protocol);
-                    return (ModbusProtocol)session.ReadHoldingRegisters(202, 1)[0];
+                    session.WriteSingleHoldingRegister(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.ModbusProtocol, (ushort)protocol);
+                    return (ModbusProtocol)session.ReadHoldingRegisters(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.ModbusProtocol, 1)[0];
                 }
             }
 
@@ -1044,8 +1186,8 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_modbusServerTypes.Contains(Type))
                         throw new NotSupportedException("Type is not StreamModbusServer or NetworkModbusServer.");
-                    await session.WriteSingleHoldingRegisterAsync(202, (ushort)protocol, cancellationToken).ConfigureAwait(false);
-                    return (ModbusProtocol)(await session.ReadHoldingRegistersAsync(202, 1, cancellationToken).ConfigureAwait(false))[0];
+                    await session.WriteSingleHoldingRegisterAsync(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.ModbusProtocol, (ushort)protocol, cancellationToken).ConfigureAwait(false);
+                    return (ModbusProtocol)(await session.ReadHoldingRegistersAsync(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.ModbusProtocol, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
             }
 
@@ -1056,8 +1198,8 @@ namespace PL.BlackBox
                     Select(session);
                     if (!_modbusServerTypes.Contains(Type))
                         throw new NotSupportedException("Type is not StreamModbusServer or NetworkModbusServer.");
-                    session.WriteSingleHoldingRegister(203, stationAddress);
-                    return (byte)session.ReadHoldingRegisters(203, 1)[0];
+                    session.WriteSingleHoldingRegister(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.ModbusStationAddress, stationAddress);
+                    return (byte)session.ReadHoldingRegisters(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.ModbusStationAddress, 1)[0];
                 }
             }
 
@@ -1068,8 +1210,8 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (!_modbusServerTypes.Contains(Type))
                         throw new NotSupportedException("Type is not StreamModbusServer or NetworkModbusServer.");
-                    await session.WriteSingleHoldingRegisterAsync(203, stationAddress, cancellationToken).ConfigureAwait(false);
-                    return (byte)(await session.ReadHoldingRegistersAsync(203, 1, cancellationToken).ConfigureAwait(false))[0];
+                    await session.WriteSingleHoldingRegisterAsync(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.ModbusStationAddress, stationAddress, cancellationToken).ConfigureAwait(false);
+                    return (byte)(await session.ReadHoldingRegistersAsync(HoldingRegisters.ServerConfiguration + ServerConfigurationOffsets.ModbusStationAddress, 1, cancellationToken).ConfigureAwait(false))[0];
                 }
             }
 
