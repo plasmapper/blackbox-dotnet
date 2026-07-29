@@ -73,6 +73,7 @@ namespace PL.BlackBox
         /// </summary>
         /// <param name="deviceName">Device name.</param>
         /// <returns>Set value.</returns>
+        /// <exception cref="ArgumentException">Device name is too long.</exception>
         string SetDeviceName(string deviceName);
 
         /// <summary>
@@ -81,6 +82,7 @@ namespace PL.BlackBox
         /// <param name="deviceName">Device name.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Set value.</returns>
+        /// <exception cref="ArgumentException">Device name is too long.</exception>
         Task<string> SetDeviceNameAsync(string deviceName, CancellationToken cancellationToken = default);
 
         /// <summary>

@@ -361,6 +361,7 @@ namespace PL.BlackBox
         /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
         /// <exception cref="Exception">Hardware interface control instance is invalid.</exception>
         /// <exception cref="NotSupportedException">Type is not WifiStation.</exception>
+        /// <exception cref="ArgumentException">SSID is too long.</exception>
         string SetWiFiSsid(string ssid);
 
         /// <summary>
@@ -372,6 +373,7 @@ namespace PL.BlackBox
         /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
         /// <exception cref="Exception">Hardware interface control instance is invalid.</exception>
         /// <exception cref="NotSupportedException">Type is not WifiStation.</exception>
+        /// <exception cref="ArgumentException">SSID is too long.</exception>
         Task<string> SetWiFiSsidAsync(string ssid, CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -381,6 +383,7 @@ namespace PL.BlackBox
         /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
         /// <exception cref="Exception">Hardware interface control instance is invalid.</exception>
         /// <exception cref="NotSupportedException">Type is not WifiStation.</exception>
+        /// <exception cref="ArgumentException">Password is too long.</exception>
         void SetWiFiPassword(string password);
 
         /// <summary>
@@ -391,6 +394,7 @@ namespace PL.BlackBox
         /// <exception cref="ArgumentOutOfRangeException">Index is out of range.</exception>
         /// <exception cref="Exception">Hardware interface control instance is invalid.</exception>
         /// <exception cref="NotSupportedException">Type is not WifiStation.</exception>
+        /// <exception cref="ArgumentException">Password is too long.</exception>
         Task SetWiFiPasswordAsync(string password, CancellationToken cancellationToken = default);
     }
 }

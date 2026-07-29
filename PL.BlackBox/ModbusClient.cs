@@ -132,7 +132,7 @@ namespace PL.BlackBox
         {
             using (var session = CreateSession())
             {
-                session.WriteMultipleHoldingRegisters(2, StringToRegisters(deviceName, 16));
+                session.WriteMultipleHoldingRegisters(2, StringToRegisters(deviceName, 16, nameof(deviceName)));
                 return RegistersToString(session.ReadHoldingRegisters(2, 16));
             }
         }
@@ -142,7 +142,7 @@ namespace PL.BlackBox
         {
             using (var session = await CreateSessionAsync(cancellationToken).ConfigureAwait(false))
             {
-                await session.WriteMultipleHoldingRegistersAsync(2, StringToRegisters(deviceName, 16), cancellationToken).ConfigureAwait(false);
+                await session.WriteMultipleHoldingRegistersAsync(2, StringToRegisters(deviceName, 16, nameof(deviceName)), cancellationToken).ConfigureAwait(false);
                 return RegistersToString(await session.ReadHoldingRegistersAsync(2, 16, cancellationToken).ConfigureAwait(false));
             }
         }
@@ -765,7 +765,7 @@ namespace PL.BlackBox
                     Select(session);
                     if (Type != HardwareInterfaceType.WifiStation)
                         throw new NotSupportedException("Type is not WifiStation.");
-                    session.WriteMultipleHoldingRegisters(116, StringToRegisters(ssid, 16));
+                    session.WriteMultipleHoldingRegisters(116, StringToRegisters(ssid, 16, nameof(ssid)));
                     return RegistersToString(session.ReadHoldingRegisters(116, 16));
                 }
             }
@@ -777,7 +777,7 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (Type != HardwareInterfaceType.WifiStation)
                         throw new NotSupportedException("Type is not WifiStation.");
-                    await session.WriteMultipleHoldingRegistersAsync(116, StringToRegisters(ssid, 16), cancellationToken).ConfigureAwait(false);
+                    await session.WriteMultipleHoldingRegistersAsync(116, StringToRegisters(ssid, 16, nameof(ssid)), cancellationToken).ConfigureAwait(false);
                     return RegistersToString(await session.ReadHoldingRegistersAsync(116, 16, cancellationToken).ConfigureAwait(false));
                 }
             }
@@ -789,7 +789,7 @@ namespace PL.BlackBox
                     Select(session);
                     if (Type != HardwareInterfaceType.WifiStation)
                         throw new NotSupportedException("Type is not WifiStation.");
-                    session.WriteMultipleHoldingRegisters(132, StringToRegisters(password, 32));
+                    session.WriteMultipleHoldingRegisters(132, StringToRegisters(password, 32, nameof(password)));
                 }
             }
 
@@ -800,7 +800,7 @@ namespace PL.BlackBox
                     await SelectAsync(session, cancellationToken).ConfigureAwait(false);
                     if (Type != HardwareInterfaceType.WifiStation)
                         throw new NotSupportedException("Type is not WifiStation.");
-                    await session.WriteMultipleHoldingRegistersAsync(132, StringToRegisters(password, 32), cancellationToken).ConfigureAwait(false);
+                    await session.WriteMultipleHoldingRegistersAsync(132, StringToRegisters(password, 32, nameof(password)), cancellationToken).ConfigureAwait(false);
                 }
             }
 
@@ -1095,9 +1095,11 @@ namespace PL.BlackBox
             return Encoding.ASCII.GetString(byteArray).Split('\0')[0];
         }
 
-        private static List<ushort> StringToRegisters(string stringValue, int numberOfRegisters)
+        private static List<ushort> StringToRegisters(string stringValue, int numberOfRegisters, string paramName)
         {
             byte[] stringValueAsByteArray = Encoding.ASCII.GetBytes(stringValue);
+            if (stringValueAsByteArray.Length > numberOfRegisters * 2)
+                throw new ArgumentException($"Value must be at most {numberOfRegisters * 2} characters long.", paramName);
             ushort[] registers = new ushort[numberOfRegisters];
             Buffer.BlockCopy(stringValueAsByteArray, 0, registers, 0, stringValueAsByteArray.Length);
             return new List<ushort>(registers);
