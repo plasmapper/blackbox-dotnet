@@ -10,10 +10,24 @@
     <RepositoryUrl>https://github.com/plasmapper/blackbox-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags></PackageTags>
-    <PackageReleaseNotes>Fixed
-- Package documentation.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added
+- Async support.
+- Index property to IHardwareInterface and IServer.
+- Messages to NotSupportedException thrown by IHardwareInterface and IServer setters not applicable to the current type
+
+Changed
+- ModbusClient constructors to match those of PL.Modbus.Client.
+- Configuration and state properties to be null if not applicable.
+- IClient, IHardwareInterface and IServer members exception documentation.
+- Modbus addresses to named constants.
+
+Fixed
+- Wrong IPv6 address returned by SetIpV6GlobalAddress.
+- Hardware interface/server index out of range exception type.
+- Unclear exception when SetDeviceName, SetWiFiSsid or SetWiFiPassword value is too long.
+- Silent corruption of non-ASCII characters in SetDeviceName, SetWiFiSsid and SetWiFiPassword values.</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <VersionPrefix>1.1.1</VersionPrefix>
+    <VersionPrefix>2.0.0</VersionPrefix>
   </PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

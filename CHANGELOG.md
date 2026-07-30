@@ -4,13 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.0] - 2026-07-30
 ### Added
 - Async support.
 - Index property to IHardwareInterface and IServer.
 - Messages to NotSupportedException thrown by IHardwareInterface and IServer setters not applicable to the current type
 
 ### Changed
+- ModbusClient constructors to match those of PL.Modbus.Client.
 - Configuration and state properties to be null if not applicable.
 - IClient, IHardwareInterface and IServer members exception documentation.
 - Modbus addresses to named constants.
