@@ -15,7 +15,9 @@ namespace PL.BlackBox
     {
         private const string _blackBoxSignature = "PLBB";
         private const ushort _blackBoxMemoryMapVersion = 1;
-        private bool _deviceCompatibilityChecked = false;
+        private bool _deviceCompatibilityValidated = false;
+        private Modbus.Stream _deviceCompatibilityValidatedStream = null;
+        private byte _deviceCompatibilityValidatedAddress = 0;
 
         private static class Coils
         {
@@ -194,14 +196,18 @@ namespace PL.BlackBox
         {
             try
             {
-                if (!_deviceCompatibilityChecked)
+                if (!_deviceCompatibilityValidated || Stream != _deviceCompatibilityValidatedStream || StationAddress != _deviceCompatibilityValidatedAddress)
+                {
                     DeviceCompatibilityValidator(ReadDeviceState(false));
+                    _deviceCompatibilityValidatedStream = Stream;
+                    _deviceCompatibilityValidatedAddress = StationAddress;
+                }
 
                 return base.CommandCore(functionCode, data);
             }
             catch
             {
-                _deviceCompatibilityChecked = false;
+                _deviceCompatibilityValidated = false;
                 throw;
             }
         }
@@ -211,14 +217,18 @@ namespace PL.BlackBox
         {
             try
             {
-                if (!_deviceCompatibilityChecked)
+                if (!_deviceCompatibilityValidated || Stream != _deviceCompatibilityValidatedStream || StationAddress != _deviceCompatibilityValidatedAddress)
+                {
                     DeviceCompatibilityValidator(await ReadDeviceStateAsync(false, cancellationToken).ConfigureAwait(false));
+                    _deviceCompatibilityValidatedStream = Stream;
+                    _deviceCompatibilityValidatedAddress = StationAddress;
+                }
 
                 return await base.CommandCoreAsync(functionCode, data, cancellationToken).ConfigureAwait(false);
             }
             catch
             {
-                _deviceCompatibilityChecked = false;
+                _deviceCompatibilityValidated = false;
                 throw;
             }
         }
@@ -325,18 +335,18 @@ namespace PL.BlackBox
         {
             if (deviceState.BlackBoxSignature != _blackBoxSignature || deviceState.BlackBoxMemoryMapVersion != _blackBoxMemoryMapVersion)
                 throw new NotSupportedException($"The device is not a valid BlackBox device.");
-            _deviceCompatibilityChecked = true;
+            _deviceCompatibilityValidated = true;
         }
 
-        // Called with checkCompatibility = false only while already inside CommandCore (i.e. while the session lock is
+        // Called with validateCompatibility = false only while already inside CommandCore (i.e. while the session lock is
         // already held), so it must talk to the wire directly via base.CommandCore instead of going through
         // ReadInputRegisters, which would try to open a new session and deadlock.
-        private DeviceState ReadDeviceState(bool checkCompatibility)
+        private DeviceState ReadDeviceState(bool validateCompatibility)
         {
             const byte startAddress = (byte)InputRegisters.DeviceState, registerCount = (byte)InputRegisters.DeviceStateCount;
 
             List<ushort> stateRegisters;
-            if (!checkCompatibility)
+            if (!validateCompatibility)
             {
                 byte[] commandData = new byte[4] { 0, startAddress, 0, registerCount };
                 byte[] responseData = base.CommandCore((byte)Modbus.FunctionCode.ReadInputRegisters, commandData).Skip(1).ToArray();
@@ -355,15 +365,15 @@ namespace PL.BlackBox
             return BuildDeviceState(stateRegisters);
         }
 
-        // Called with checkCompatibility = false only while already inside CommandCoreAsync (i.e. while the session lock is
+        // Called with validateCompatibility = false only while already inside CommandCoreAsync (i.e. while the session lock is
         // already held), so it must talk to the wire directly via base.CommandCoreAsync instead of going through
         // ReadInputRegistersAsync, which would try to open a new session and deadlock.
-        private async Task<DeviceState> ReadDeviceStateAsync(bool checkCompatibility, CancellationToken cancellationToken)
+        private async Task<DeviceState> ReadDeviceStateAsync(bool validateCompatibility, CancellationToken cancellationToken)
         {
             const byte startAddress = (byte)InputRegisters.DeviceState, registerCount = (byte)InputRegisters.DeviceStateCount;
 
             List<ushort> stateRegisters;
-            if (!checkCompatibility)
+            if (!validateCompatibility)
             {
                 byte[] commandData = new byte[4] { 0, startAddress, 0, registerCount };
                 byte[] responseData = (await base.CommandCoreAsync((byte)Modbus.FunctionCode.ReadInputRegisters, commandData, cancellationToken).ConfigureAwait(false)).Skip(1).ToArray();
